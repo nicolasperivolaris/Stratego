@@ -17,7 +17,7 @@ namespace Stratego.Controler.Network
 
             ListeningSocket = new Socket(AddressFamily.InterNetwork,
                 SocketType.Stream, ProtocolType.Tcp);
-            IPEndPoint localEndPoint = new IPEndPoint(Dns.GetHostAddresses("localhost")[0], Port);
+            IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Any, Port);
             ListeningSocket.Bind(localEndPoint);
         }
 
