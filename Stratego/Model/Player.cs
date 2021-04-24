@@ -1,6 +1,7 @@
 ﻿using Stratego.Model.Pieces;
 using System;
 using System.Drawing;
+using System.Xml.Serialization;
 
 namespace Stratego.Model
 {
@@ -8,8 +9,10 @@ namespace Stratego.Model
     {
         public String Name { get; set; }
         public int Number { get; set; }
+        [XmlIgnoreAttribute]
         public System.Net.IPAddress Address { get; set; }
         public Color Color { get; set; }
+        [XmlIgnoreAttribute]
         public PieceFactory PieceFactory { get; set; }
 
         public Player()
