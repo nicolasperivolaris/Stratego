@@ -1,0 +1,92 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Stratego.Model.Piece">
+    <Position X="9.75" Y="7" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Properties" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAACAQQAAAAAAAAAQAAAQIAAAA=</HashCode>
+      <FileName>Model\Pieces\Piece.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Stratego.Model.HoleTile">
+    <Position X="13.5" Y="11.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Model\Tiles\HoleTile.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Stratego.Model.Demineur">
+    <Position X="8.5" Y="11.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Model\Pieces\Demineur.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Stratego.Model.Tile">
+    <Position X="14.75" Y="7" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ACBAAAAQAAAABAAAAAAABAACAAAAIAAAAAAAIgAAAAA=</HashCode>
+      <FileName>Model\Tiles\Tile.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Stratego.Model.WalkableTile">
+    <Position X="15.75" Y="11.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAQAAAAA=</HashCode>
+      <FileName>Model\Tiles\WalkableTile.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Stratego.Model.Pieces.Spy">
+    <Position X="10.75" Y="11.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAQAAAAAAAAQAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Model\Pieces\Spy.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Stratego.Movable">
+    <Position X="9.75" Y="9.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Model\Pieces\Movable.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Stratego.Model.Pieces.PieceFactory">
+    <Position X="7.75" Y="7" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAAAAAIAABAAAAAAAAAAAAAQAAAAAAARAAAAE=</HashCode>
+      <FileName>Model\Pieces\PieceFactory.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Stratego.Model.GridPanel">
+    <Position X="13" Y="4" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CAQAAIAAQAIIAAAAAAAACAAAAAAKAAIAAAAAAAQAEAA=</HashCode>
+      <FileName>View\Panels\GridPanel.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Stratego.Model.DekPanel">
+    <Position X="16.75" Y="4" Width="1.5" />
+    <NestedTypes>
+      <Class Name="Stratego.Model.DekPanel.Dek" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>View\Panels\DekPanel.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAQAAAAAAAAAAAAAAAAAAACAACAAgAAAAIAAA=</HashCode>
+      <FileName>View\Panels\DekPanel.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Enum Name="Stratego.Model.Type" Collapsed="true">
+    <Position X="7.75" Y="10.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAIAJAAAAAAAAAAAJAGAQAAgACAAAAASAAAAAgAAAAA=</HashCode>
+      <FileName>Model\Pieces\Type.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

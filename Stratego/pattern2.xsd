@@ -1,0 +1,125 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<map rows="10" columns="10">
+  <player number="0" color="green"/>
+  <player number="1" color="red"/>
+  <row i="0">
+    <cell j="0" accessible="true"/>
+    <cell j="1" accessible="true"/>
+    <cell j="2" accessible="true"/>
+    <cell j="3" accessible="true"/>
+    <cell j="4" accessible="true"/>
+    <cell j="5" accessible="true"/>
+    <cell j="6" accessible="true"/>
+    <cell j="7" accessible="true"/>
+    <cell j="8" accessible="true"/>
+    <cell j="9" accessible="true"/>
+  </row>
+  <row i="1">
+    <cell j="0" accessible="true"/>
+    <cell j="1" accessible="true"/>
+    <cell j="2" accessible="true"/>
+    <cell j="3" accessible="true"/>
+    <cell j="4" accessible="true"/>
+    <cell j="5" accessible="true"/>
+    <cell j="6" accessible="true"/>
+    <cell j="7" accessible="true"/>
+    <cell j="8" accessible="true"/>
+    <cell j="9" accessible="true"/>
+  </row>
+  <row i="2">
+    <cell j="0" accessible="true"/>
+    <cell j="1" accessible="true"/>
+    <cell j="2" accessible="true"/>
+    <cell j="3" accessible="true"/>
+    <cell j="4" accessible="true"/>
+    <cell j="5" accessible="true"/>
+    <cell j="6" accessible="true"/>
+    <cell j="7" accessible="true"/>
+    <cell j="8" accessible="true"/>
+    <cell j="9" accessible="true"/>
+  </row>
+  <row i="3">
+    <cell j="0" accessible="true"/>
+    <cell j="1" accessible="true"/>
+    <cell j="2" accessible="true"/>
+    <cell j="3" accessible="true"/>
+    <cell j="4" accessible="true"/>
+    <cell j="5" accessible="true"/>
+    <cell j="6" accessible="true"/>
+    <cell j="7" accessible="true"/>
+    <cell j="8" accessible="true"/>
+    <cell j="9" accessible="true"/>
+  </row>
+  <row i="4">
+    <cell j="0" accessible="true"/>
+    <cell j="1" accessible="true"/>
+    <cell j="2" accessible="false"/>
+    <cell j="3" accessible="false"/>
+    <cell j="4" accessible="true"/>
+    <cell j="5" accessible="true"/>
+    <cell j="6" accessible="false"/>
+    <cell j="7" accessible="false"/>
+    <cell j="8" accessible="true"/>
+    <cell j="9" accessible="true"/>
+  </row>
+  <row i="5">
+    <cell j="0" accessible="true"/>
+    <cell j="1" accessible="true"/>
+    <cell j="2" accessible="false"/>
+    <cell j="3" accessible="false"/>
+    <cell j="4" accessible="true"/>
+    <cell j="5" accessible="true"/>
+    <cell j="6" accessible="false"/>
+    <cell j="7" accessible="false"/>
+    <cell j="8" accessible="true"/>
+    <cell j="9" accessible="true"/>
+  </row>
+  <row i="6" owner="0">
+    <cell j="0" accessible="true"/>
+    <cell j="1" accessible="true"/>
+    <cell j="2" accessible="true"/>
+    <cell j="3" accessible="true"/>
+    <cell j="4" accessible="true"/>
+    <cell j="5" accessible="true"/>
+    <cell j="6" accessible="true"/>
+    <cell j="7" accessible="true"/>
+    <cell j="8" accessible="true"/>
+    <cell j="9" accessible="true"/>
+  </row>
+  <row i="7" owner="0">
+    <cell j="0" accessible="true"/>
+    <cell j="1" accessible="true"/>
+    <cell j="2" accessible="true"/>
+    <cell j="3" accessible="true"/>
+    <cell j="4" accessible="true"/>
+    <cell j="5" accessible="true"/>
+    <cell j="6" accessible="true"/>
+    <cell j="7" accessible="true"/>
+    <cell j="8" accessible="true"/>
+    <cell j="9" accessible="true"/>
+  </row>
+  <row i="8" owner="0">
+    <cell j="0" accessible="true"/>
+    <cell j="1" accessible="true"/>
+    <cell j="2" accessible="true"/>
+    <cell j="3" accessible="true"/>
+    <cell j="4" accessible="true"/>
+    <cell j="5" accessible="true"/>
+    <cell j="6" accessible="true"/>
+    <cell j="7" accessible="true"/>
+    <cell j="8" accessible="true"/>
+    <cell j="9" accessible="true"/>
+  </row>
+  <row i="9" owner="0">
+    <cell j="0" accessible="true"/>
+    <cell j="1" accessible="true"/>
+    <cell j="2" accessible="true"/>
+    <cell j="3" accessible="true"/>
+    <cell j="4" accessible="true"/>
+    <cell j="5" accessible="true"/>
+    <cell j="6" accessible="true"/>
+    <cell j="7" accessible="true"/>
+    <cell j="8" accessible="true"/>
+    <cell j="9" accessible="true"/>
+  </row>
+</map>
