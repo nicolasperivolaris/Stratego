@@ -8,7 +8,7 @@ namespace Stratego.Controler.Network
 {
     public abstract class NetworkManager
     {
-        public readonly int Port = 11000;
+        public readonly int Port = 5500;
 
         public event EventHandler DataReceived;
         public event EventHandler PartnerArrival;

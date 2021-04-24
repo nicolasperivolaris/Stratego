@@ -117,7 +117,7 @@ namespace Stratego.View
                 Grid.BackColor = GridPanel.DefaultBackColor;
                 foreach (Control control in Grid.Controls)
                 {
-                    if (control is WalkableTile && ((WalkableTile)control).Owner == Players[Program.PLAYER])
+                    if (control is WalkableTile tile && tile.Owner == Players[Program.PLAYER])
                         control.BackColor = Color.Yellow;
                 }
                 DekPanel.Selectable = false;

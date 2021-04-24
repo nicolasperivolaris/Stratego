@@ -15,7 +15,7 @@ namespace Stratego.Controler.Network
             //IPAddress ipAddress = IPAddress.Parse("127.0.0.1");
             ServerIP = server;
             // Create a TCP/IP socket.  
-            ListeningSocket = new Socket(ServerIP.AddressFamily,
+            ListeningSocket = new Socket(AddressFamily.InterNetwork,
                 SocketType.Stream, ProtocolType.Tcp);
         }
 
