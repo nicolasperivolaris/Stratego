@@ -74,7 +74,7 @@ namespace Stratego.Controler.Network
             ListeningSocket.Close();
         }
 
-        public abstract List<IPAddress> GetPartners();
+        public abstract List<IPAddress> GetPartnersAddress();
 
         // State object for reading client data asynchronously  
         protected class StateObject

@@ -9,7 +9,7 @@ namespace Stratego.Controler.Network
 {
     public class Server : NetworkManager
     {
-        private List<Socket> Clients { get; set; }
+        public List<Socket> Clients { get; private set; }
 
         public Server(int dataSize) : base(dataSize)
         {
@@ -91,7 +91,7 @@ namespace Stratego.Controler.Network
             }
         }
 
-        public override List<IPAddress> GetPartners()
+        public override List<IPAddress> GetPartnersAddress()
         {
             List<IPAddress> list = new List<IPAddress>();
             foreach (Socket socket in Clients)

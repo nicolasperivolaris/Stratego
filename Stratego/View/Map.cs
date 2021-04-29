@@ -1,6 +1,8 @@
 ﻿using Stratego.Controler.Network;
 using Stratego.Model;
+using Stratego.Model.Panels;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -32,6 +34,11 @@ namespace Stratego.View
             get; private set;
         }
 
+        public Stack<Move> MovesHistory
+        {
+            get;set;
+        }
+
         public int PlayerAmount { get; private set; }
 
         private Mode _statusMode;
@@ -45,7 +52,7 @@ namespace Stratego.View
             {
                 Players.Add(player.Number, player);
             }
-            Grid = new GridPanel(OnClick, Players)
+            Grid = new GridPanel(OnTileClick, Players)
             {
                 Dock = DockStyle.Fill,
                 Name = "grid"
@@ -53,7 +60,7 @@ namespace Stratego.View
             Grid.CreateMap(Properties.Resources.pattern2);
             PlayerAmount = 2;
 
-            DekPanel = new DekPanel(OnClick)
+            DekPanel = new DekPanel(OnTileClick)
             {
                 Dock = DockStyle.Fill,
                 Name = "dekPanel"
@@ -68,14 +75,22 @@ namespace Stratego.View
             {
                 AddPlayerPieces(player);
             }
+
+            MovesHistory = new Stack<Move>();
         }
 
-        private void OnClick(object sender, EventArgs e)
+        private void OnTileClick(object sender, EventArgs e)
         {
+            ActionEvent actionEvent = (ActionEvent)e;
             if (sender == DekPanel) Grid.Selected = null;
             switch (_statusMode)
             {
                 case Mode.Normal:
+                    if (actionEvent.ActionType == ActionType.Move)
+                    {
+                        OnMove(actionEvent);
+                        MovesHistory.Push((Move)actionEvent.Object);
+                    }
                     break;
                 case Mode.Editor:
                     if (sender == Grid
@@ -95,17 +110,36 @@ namespace Stratego.View
                     break;
             }
         }
-
-        private void SetOnGrid(Piece piece, Tile tile)
-        {
-            if (tile.Piece != null) tile.Piece.ToFactory();
-            tile.Piece = piece.Player.PieceFactory.CountedInstanceOf(piece.Type);
-        }
-
         private void AddPlayerPieces(Player player)
         {
             DekPanel.AddPlayer(player);
             //ActiveControl = DekPanel.Controls[0]; 
+        }
+
+        // Important events for other players
+        #region actions
+
+        private void SetOnGrid(Piece piece, Tile endTile)
+        {
+            if (endTile.Piece != null) endTile.Piece.ToFactory();
+            endTile.Piece = piece.Player.PieceFactory.CountedInstanceOf(piece.Type);
+        }
+
+        private void OnMove(ActionEvent e)
+        {
+            //Todo send info to clients
+            ActionSerializer actionSerializer = new ActionSerializer()
+            {
+                ActionType = e.ActionType,
+                from = ((Move)e.Object).From.Coordinate,
+                to = ((Move)e.Object).To.Coordinate
+            };
+            Send(actionSerializer);
+        }
+
+        private void OnStart()
+        {
+            //Todo start
         }
 
         private void EditorModeClick(object sender, EventArgs e)
@@ -128,7 +162,8 @@ namespace Stratego.View
                 Grid.BackColor = Color.LightGreen;
                 foreach (Control control in Grid.Controls)
                 {
-                    if (control is WalkableTile && ((WalkableTile)control).Owner == Players[Program.PLAYER])
+                    if (control is WalkableTile tile 
+                        && tile.Owner == Players[Program.PLAYER])
                         control.BackColor = Color.Green;
                 }
 
@@ -138,8 +173,27 @@ namespace Stratego.View
             editor.Checked = !editor.Checked;
         }
 
+        #endregion
 
-        #region multiplayer
+        #region Multiplayer management
+        /// <summary>
+        /// Send an action on the network
+        /// </summary>
+        /// <param name="serializer"></param>
+        private void Send(ActionSerializer serializer)
+        {
+            NetworkManager.Send("action\n");
+            NetworkManager.Send(serializer.Serialize());
+        }
+
+        /// <summary>
+        /// Send a text message on the network
+        /// </summary>
+        /// <param name="s">Message</param>
+        private void Send(String s)
+        {
+            NetworkManager.Send(s);
+        }
         private void WaitForPlayersToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (_multiMode == Mode.PlayerAwaiting)
@@ -161,7 +215,7 @@ namespace Stratego.View
                 };
                 menuStrip1.Items.Add(toolStripProgressBar);
 
-                NetworkManager = new Server(new MoveSerializer().GetSize());
+                NetworkManager = new Server(new ActionSerializer().GetSize());
                 NetworkManager.Connect();
                 NetworkManager.DataReceived += OnDataReceived;
                 NetworkManager.PartnerArrival += OnPartnerArrival;
@@ -191,7 +245,7 @@ namespace Stratego.View
 
             if (e is StringEventArgs)
             {
-                MoveSerializer m = MoveSerializer.TryDeserialize(e.ToString());
+                ActionSerializer m = ActionSerializer.TryDeserialize(e.ToString());
 
                 if (m == null)
                 {
@@ -234,7 +288,7 @@ namespace Stratego.View
                     address = Dns.GetHostAddresses("localhost")[0];
                 }
 
-                this.NetworkManager = new Client(address, new MoveSerializer().GetSize());
+                this.NetworkManager = new Client(address, new ActionSerializer().GetSize());
                 this.NetworkManager.Connect();
                 _multiMode = Mode.Client;
                 NetworkManager.DataReceived += OnDataReceived;
@@ -244,14 +298,23 @@ namespace Stratego.View
             connectDialog.Dispose();
         }
 
-        public class MoveSerializer
+
+        #endregion
+        public class ActionSerializer
         {
             public Player Player;
+            public ActionType ActionType;
             public Point from = new Point();
             public Point to = new Point();
 
-            public MoveSerializer()
+            public ActionSerializer()
             {
+            }
+
+            public ActionSerializer(Move move)
+            {
+                from = move.From.Coordinate;
+                to = move.To.Coordinate;
             }
 
             public int GetSize()
@@ -261,7 +324,7 @@ namespace Stratego.View
 
             public String Serialize()
             {
-                XmlSerializer serializer = new XmlSerializer(typeof(MoveSerializer));
+                XmlSerializer serializer = new XmlSerializer(typeof(ActionSerializer));
                 using (TextWriter tw = new StringWriter())
                 {
                     serializer.Serialize(tw, this);
@@ -269,9 +332,9 @@ namespace Stratego.View
                 }
             }
 
-            public static MoveSerializer TryDeserialize(String data)
+            public static ActionSerializer TryDeserialize(String data)
             {
-                XmlSerializer serializer = new XmlSerializer(typeof(MoveSerializer));
+                XmlSerializer serializer = new XmlSerializer(typeof(ActionSerializer));
 
                 try
                 {
@@ -279,7 +342,7 @@ namespace Stratego.View
                     {
                         if (serializer.CanDeserialize(reader))
                         {
-                            MoveSerializer result = (MoveSerializer)serializer.Deserialize(reader);
+                            ActionSerializer result = (ActionSerializer)serializer.Deserialize(reader);
                             return result;
                         }
 
@@ -294,7 +357,6 @@ namespace Stratego.View
             }
         }
 
-        #endregion
 
     }
 }

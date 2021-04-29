@@ -34,7 +34,10 @@ namespace Stratego.View
         {
             Invoke((MethodInvoker)delegate ()
             {
-                if (Selectable) Selected = (Tile)e.Object;
+                if (Selectable)
+                {   
+                    Selected = (e.Object is Move) ? ((Move)e.Object).To : (Tile)e.Object;
+                }
                 TileClick(this, e);
             });
 

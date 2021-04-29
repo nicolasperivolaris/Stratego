@@ -6,11 +6,12 @@ namespace Stratego.Model.Panels
     {
         public ActionType ActionType { get; set; }
         public Control Sender { get; set; }
-        public Control Object { get; set; }
+        public object Object { get; set; }
     }
 
     public enum ActionType
     {
-        EditorMode, TileClick, WaitForPlayer
+        NormalMode, EditorMode, WaitForPlayer,
+        TileClick, FromDekToGrid, FromGridToDek, Move
     }
 }

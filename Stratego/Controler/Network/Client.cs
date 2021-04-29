@@ -61,7 +61,7 @@ namespace Stratego.Controler.Network
             Send(ListeningSocket, msg);
         }
 
-        public override List<IPAddress> GetPartners()
+        public override List<IPAddress> GetPartnersAddress()
         {
             List<IPAddress> list = new List<IPAddress>();
             list.Add(ServerIP);

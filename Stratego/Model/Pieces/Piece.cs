@@ -45,7 +45,7 @@ namespace Stratego.Model
             Player.PieceFactory.PutPieceBack(this);
         }
 
-        public void Move(Tile from, Tile to)
+        public bool Move(Tile from, Tile to)
         {
             if (from.Piece.IsPossible(new Model.Move() { From = from, To = to }))
             {
@@ -62,6 +62,11 @@ namespace Stratego.Model
                     }
                 }
                 from.Remove();
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
     }

@@ -74,14 +74,29 @@ namespace Stratego.View
 
         private void OnClick(object sender, EventArgs e)
         {
-            Selected?.Piece?.Move(Selected, (Tile)sender);
+            bool? moved = Selected?.Piece?.Move(Selected, (Tile)sender);
 
-            ActionEvent click = new ActionEvent()
+            ActionEvent click;
+
+            if (moved == true)
             {
-                ActionType = ActionType.TileClick,
-                Object = (Tile)sender,
-                Sender = this
-            };
+                Move move = new Move() { From = Selected, To = (Tile)sender };
+                click = new ActionEvent()
+                {
+                    ActionType = ActionType.Move,
+                    Object = move,
+                    Sender = this
+                };
+            }
+            else
+            {
+                click = new ActionEvent()
+                {
+                    ActionType = ActionType.TileClick,
+                    Object = (Tile)sender,
+                    Sender = this
+                };
+            }
             OnTileClick(this, click);
         }
 
