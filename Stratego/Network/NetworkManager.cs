@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Stratego.Network;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
-namespace Stratego.Controler.Network
+namespace Stratego.Network
 {
     public abstract class NetworkManager
     {
@@ -13,13 +14,15 @@ namespace Stratego.Controler.Network
         public event EventHandler DataReceived;
         public event EventHandler PartnerArrival;
 
-        public int DataSize { get; set; }
+        public const string EOL = "<EOL>";
+
+        public Serializer Serializer { get; set; }
 
         public Socket ListeningSocket { get; set; }
 
-        public NetworkManager(int dataSize)
+        public NetworkManager(Serializer serializer)
         {
-            DataSize = dataSize;
+            Serializer = serializer;
         }
 
         public abstract void Connect();
@@ -29,7 +32,7 @@ namespace Stratego.Controler.Network
         protected void Send(Socket EndPoint, String data)
         {
             // Convert the string data to byte data using ASCII encoding.  
-            byte[] byteData = Encoding.ASCII.GetBytes(data);
+            byte[] byteData = Encoding.ASCII.GetBytes(data + EOL);
 
             // Begin sending the data to the remote device.  
             EndPoint.BeginSend(byteData, 0, byteData.Length, 0,
@@ -42,15 +45,31 @@ namespace Stratego.Controler.Network
             int bytesRead;
             try
             {
-                bytesRead = state.workSocket.EndReceive(ar);
+                bytesRead = state.WorkSocket.EndReceive(ar);
             }
             catch (SocketException) { return; }
 
-            DataReceived?.Invoke(((IPEndPoint)state.workSocket.RemoteEndPoint).Address,
-                new StringEventArgs(Encoding.ASCII.GetString(state.buffer)));
+            String tmp = Encoding.ASCII.GetString(state.Buffer);
+            if ((state.Content + tmp).Contains(EOL))
+            {            
+                string[] msgs = (state.Content + tmp).Split(new string[] { EOL }, StringSplitOptions.None);
 
-            Array.Clear(state.buffer, 0, state.buffer.Length);
-            state.workSocket.BeginReceive(state.buffer, 0, state.BufferSize, 0,
+                for (int i = 0; i < msgs.Length - 1; i++)//send all the messages but the queue if more than one in this stream 
+                {
+                    DataReceived?.Invoke(((IPEndPoint)state.WorkSocket.RemoteEndPoint).Address,
+                    new StringEventArgs(msgs[i]));
+                }
+                state.Content.Clear();
+                state.Content.Append(msgs[msgs.Length - 1]); // save the queue
+            }
+            else
+            {
+                state.Content.Append(tmp);
+            }
+
+
+            Array.Clear(state.Buffer, 0, state.BufferSize);
+            state.WorkSocket.BeginReceive(state.Buffer, 0, state.BufferSize, 0,
                     new AsyncCallback(ReceiveDataAsync), state);
         }
 
@@ -59,7 +78,7 @@ namespace Stratego.Controler.Network
             Console.WriteLine("Message send: " + ((Socket)ar.AsyncState).EndSend(ar));
         }
 
-        public void OnPartnerArrival(Socket partner)
+        protected void OnPartnerArrival(Socket partner)
         {
             PartnerArrival?.Invoke(((IPEndPoint)partner.RemoteEndPoint).Address, null);
         }
@@ -80,18 +99,20 @@ namespace Stratego.Controler.Network
         protected class StateObject
         {
             // Size of receive buffer.  
-            public int BufferSize;
+            public int BufferSize = 2;
 
             // Receive buffer.  
-            public byte[] buffer;
+            public byte[] Buffer;
 
             // Client socket.
-            public Socket workSocket = null;
+            public Socket WorkSocket = null;
 
-            public StateObject(int bufferSize)
+            public StringBuilder Content;
+
+            public StateObject()
             {
-                BufferSize = bufferSize;
-                buffer = new byte[BufferSize];
+                Content = new StringBuilder(); 
+                Buffer = new byte[BufferSize];
             }
         }
 

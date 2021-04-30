@@ -65,11 +65,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Controler\Network\Client.cs" />
-    <Compile Include="Controler\Network\NetworkManager.cs" />
-    <Compile Include="Controler\Network\Server.cs" />
-    <Compile Include="Controler\Network\DataReceivedEventArgs.cs" />
+    <Compile Include="Network\Client.cs" />
+    <Compile Include="Utils\Flag.cs" />
+    <Compile Include="Network\NetworkManager.cs" />
+    <Compile Include="Network\Server.cs" />
+    <Compile Include="Network\DataReceivedEventArgs.cs" />
     <Compile Include="Model\Dek.cs" />
+    <Compile Include="Network\Serializer.cs" />
+    <Compile Include="Utils\ActionSerializer.cs" />
     <Compile Include="View\ConnectDialog.cs">
       <SubType>Form</SubType>
     </Compile>

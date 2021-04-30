@@ -1,18 +1,16 @@
-﻿using System;
+﻿using Stratego.Network;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 
-namespace Stratego.Controler.Network
+namespace Stratego.Network
 {
     public class Client : NetworkManager
     {
         private IPAddress ServerIP { get; set; }
-        public Client(IPAddress server, int dataSize) : base(dataSize)
+        public Client(IPAddress server, Serializer serializer) : base(serializer)
         {
-            //ServerIP = Dns.GetHostAddresses("localhost")[0];
-            // Establish the remote endpoint for the socket.  
-            //IPAddress ipAddress = IPAddress.Parse("127.0.0.1");
             ServerIP = server;
             // Create a TCP/IP socket.  
             ListeningSocket = new Socket(AddressFamily.InterNetwork,
@@ -39,11 +37,11 @@ namespace Stratego.Controler.Network
                 Console.WriteLine("Client connected to {0}",
                     client.RemoteEndPoint.ToString());
 
-                StateObject state = new StateObject(DataSize)
+                StateObject state = new StateObject()
                 {
-                    workSocket = client
+                    WorkSocket = client
                 };
-                client.BeginReceive(state.buffer, 0, state.BufferSize, 0,
+                client.BeginReceive(state.Buffer, 0, state.BufferSize, 0,
                 new AsyncCallback(ReceiveDataAsync), state);
 
                 Send("Hello");

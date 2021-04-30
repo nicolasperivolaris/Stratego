@@ -1,17 +1,18 @@
-﻿using System;
+﻿using Stratego.Network;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Xml.Serialization;
 
-namespace Stratego.Controler.Network
+namespace Stratego.Network
 {
     public class Server : NetworkManager
     {
         public List<Socket> Clients { get; private set; }
 
-        public Server(int dataSize) : base(dataSize)
+        public Server(Serializer serializer) : base(serializer)
         {
             Clients = new List<Socket>();
 
@@ -63,12 +64,12 @@ namespace Stratego.Controler.Network
                 return;
             }
 
-            StateObject state = new StateObject(DataSize)
+            StateObject state = new StateObject()
             {
-                workSocket = client
+                WorkSocket = client
             };
 
-            client.BeginReceive(state.buffer, 0, state.BufferSize, 0,
+            client.BeginReceive(state.Buffer, 0, state.BufferSize, 0,
                 new AsyncCallback(ReceiveDataAsync), state);
 
             //client accepted

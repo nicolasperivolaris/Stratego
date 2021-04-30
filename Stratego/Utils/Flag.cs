@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace StrategoServer.Games
+namespace Stratego.Utils
 {
-    public class Games
+    public enum Flag
     {
-
+        Introducing, Map, Action, Quit, Message
     }
 }

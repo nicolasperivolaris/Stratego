@@ -1,6 +1,7 @@
-﻿using Stratego.Controler.Network;
+﻿using Stratego.Network;
 using Stratego.Model;
 using Stratego.Model.Panels;
+using Stratego.Utils;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -215,7 +216,7 @@ namespace Stratego.View
                 };
                 menuStrip1.Items.Add(toolStripProgressBar);
 
-                NetworkManager = new Server(new ActionSerializer().GetSize());
+                NetworkManager = new Server(new ActionSerializer());
                 NetworkManager.Connect();
                 NetworkManager.DataReceived += OnDataReceived;
                 NetworkManager.PartnerArrival += OnPartnerArrival;
@@ -285,10 +286,10 @@ namespace Stratego.View
                 }
                 catch
                 {
-                    address = Dns.GetHostAddresses("localhost")[0];
+                    address = IPAddress.Loopback; //default : (debug only)
                 }
 
-                this.NetworkManager = new Client(address, new ActionSerializer().GetSize());
+                this.NetworkManager = new Client(address, new ActionSerializer());
                 this.NetworkManager.Connect();
                 _multiMode = Mode.Client;
                 NetworkManager.DataReceived += OnDataReceived;
@@ -300,62 +301,6 @@ namespace Stratego.View
 
 
         #endregion
-        public class ActionSerializer
-        {
-            public Player Player;
-            public ActionType ActionType;
-            public Point from = new Point();
-            public Point to = new Point();
-
-            public ActionSerializer()
-            {
-            }
-
-            public ActionSerializer(Move move)
-            {
-                from = move.From.Coordinate;
-                to = move.To.Coordinate;
-            }
-
-            public int GetSize()
-            {
-                return Serialize().Length;
-            }
-
-            public String Serialize()
-            {
-                XmlSerializer serializer = new XmlSerializer(typeof(ActionSerializer));
-                using (TextWriter tw = new StringWriter())
-                {
-                    serializer.Serialize(tw, this);
-                    return tw.ToString();
-                }
-            }
-
-            public static ActionSerializer TryDeserialize(String data)
-            {
-                XmlSerializer serializer = new XmlSerializer(typeof(ActionSerializer));
-
-                try
-                {
-                    using (System.Xml.XmlReader reader = System.Xml.XmlReader.Create(data))
-                    {
-                        if (serializer.CanDeserialize(reader))
-                        {
-                            ActionSerializer result = (ActionSerializer)serializer.Deserialize(reader);
-                            return result;
-                        }
-
-                    }
-                }
-                catch (ArgumentException)
-                {
-                    Console.WriteLine(data);
-                }
-
-                return null;
-            }
-        }
 
 
     }

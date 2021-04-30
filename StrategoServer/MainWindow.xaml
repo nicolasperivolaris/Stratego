@@ -5,12 +5,17 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:StrategoServer"
         mc:Ignorable="d"
+        xmlns:c="clr-namespace:StrategoServer"
         Title="MainWindow" Height="450" Width="800">
-    <DockPanel xmlns:c="clr-namespace:Stratego.Controler.Network;assembly=Stratego">
-        <DockPanel.Resources>
-        </DockPanel.Resources>
-        <DockPanel>
-
+    <DockPanel >
+        <DockPanel >
+            <ListBox ItemsSource="{Binding}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Name}" />
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ListBox>
             <Separator VerticalAlignment="Center"></Separator>
             <ListView DockPanel.Dock="Right">
                 <Label Content="hello" ></Label>
