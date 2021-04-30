@@ -3,13 +3,11 @@ using Stratego.Model;
 using Stratego.Model.Panels;
 using Stratego.Utils;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
 using System.Net;
 using System.Windows.Forms;
-using System.Xml.Serialization;
+using Stratego.Sockets.Network;
 
 namespace Stratego.View
 {
@@ -21,7 +19,7 @@ namespace Stratego.View
             PlayerAwaiting, Server, Client
         }
 
-        private NetworkManager NetworkManager;
+        private NetworkController NetworkController;
         private GridPanel Grid
         {
             get; set;
@@ -80,9 +78,17 @@ namespace Stratego.View
             MovesHistory = new Stack<Move>();
         }
 
+        private void OnChatMessage(object sender, StringEventArgs msg)
+        {
+            chatBox.Control.BeginInvoke((MethodInvoker)delegate ()
+            {
+                chatBox.Text = msg.Data;
+            });
+        }
+
         private void OnTileClick(object sender, EventArgs e)
         {
-            ActionEvent actionEvent = (ActionEvent)e;
+            ActionEventArgs actionEvent = (ActionEventArgs)e;
             if (sender == DekPanel) Grid.Selected = null;
             switch (_statusMode)
             {
@@ -126,7 +132,7 @@ namespace Stratego.View
             endTile.Piece = piece.Player.PieceFactory.CountedInstanceOf(piece.Type);
         }
 
-        private void OnMove(ActionEvent e)
+        private void OnMove(ActionEventArgs e)
         {
             //Todo send info to clients
             ActionSerializer actionSerializer = new ActionSerializer()
@@ -135,7 +141,7 @@ namespace Stratego.View
                 from = ((Move)e.Object).From.Coordinate,
                 to = ((Move)e.Object).To.Coordinate
             };
-            Send(actionSerializer);
+            NetworkController.Send(actionSerializer);
         }
 
         private void OnStart()
@@ -175,33 +181,13 @@ namespace Stratego.View
         }
 
         #endregion
-
-        #region Multiplayer management
-        /// <summary>
-        /// Send an action on the network
-        /// </summary>
-        /// <param name="serializer"></param>
-        private void Send(ActionSerializer serializer)
-        {
-            NetworkManager.Send("action\n");
-            NetworkManager.Send(serializer.Serialize());
-        }
-
-        /// <summary>
-        /// Send a text message on the network
-        /// </summary>
-        /// <param name="s">Message</param>
-        private void Send(String s)
-        {
-            NetworkManager.Send(s);
-        }
         private void WaitForPlayersToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (_multiMode == Mode.PlayerAwaiting)
             {
                 menuStrip1.Items.Remove(toolStripProgressBar);
                 toolStripProgressBar.Dispose();
-                NetworkManager.CloseConnection();
+                NetworkController.StopWaiting();
                 ((ToolStripMenuItem)sender).Text = "Wait for player";
                 _multiMode = Mode.Normal;
             }
@@ -216,61 +202,14 @@ namespace Stratego.View
                 };
                 menuStrip1.Items.Add(toolStripProgressBar);
 
-                NetworkManager = new Server(new ActionSerializer());
-                NetworkManager.Connect();
-                NetworkManager.DataReceived += OnDataReceived;
-                NetworkManager.PartnerArrival += OnPartnerArrival;
+                NetworkController.StartAsServer();
+                NetworkController.Message += OnChatMessage;
 
                 _multiMode = Mode.PlayerAwaiting;
                 ((ToolStripMenuItem)sender).Text = "Stop waiting";
             }
         }
 
-        private void OnPartnerArrival(object sender, EventArgs e)
-        {
-            var enumerator = Players.Values.GetEnumerator();
-            bool newPartnerLinked = false;
-            while (enumerator.MoveNext() && !newPartnerLinked)
-            {
-                if (enumerator.Current.Address == null)
-                {
-                    enumerator.Current.Address = (IPAddress)sender;
-                    newPartnerLinked = true;
-                }
-            }
-        }
-
-        private void OnDataReceived(object sender, EventArgs e)
-        {
-            IPAddress address = (IPAddress)sender;
-
-            if (e is StringEventArgs)
-            {
-                ActionSerializer m = ActionSerializer.TryDeserialize(e.ToString());
-
-                if (m == null)
-                {
-                    chatBox.Control.BeginInvoke((MethodInvoker)delegate ()
-                    {
-                        chatBox.Text = ((StringEventArgs)e).Data;
-                    });
-                }
-                else
-                {
-                    if (_statusMode == Mode.Editor)
-                    {
-                        Player player = Players[m.Player.Number];
-                        Piece piece = player.PieceFactory.CountedInstanceOf((Model.Type)m.from.Y);
-                        SetOnGrid(piece, (Tile)Grid.GetChildAtPoint(m.to));
-                        if (piece != null)
-                            DekPanel.UpdateDekWith(piece);
-
-                        DekPanel.Selected.Focus();
-                    }
-                }
-            }
-
-        }
 
         private void JointToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -288,20 +227,27 @@ namespace Stratego.View
                 {
                     address = IPAddress.Loopback; //default : (debug only)
                 }
-
-                this.NetworkManager = new Client(address, new ActionSerializer());
-                this.NetworkManager.Connect();
-                _multiMode = Mode.Client;
-                NetworkManager.DataReceived += OnDataReceived;
-                NetworkManager.PartnerArrival += OnPartnerArrival;
+                NetworkController.StartAsClient(address);
+                NetworkController.Message += OnChatMessage;
+                NetworkController.Action += OnPartnerAction;
             }
 
             connectDialog.Dispose();
         }
 
+        private void OnPartnerAction(object sender, ActionEventArgs action)
+        {
+            if (_statusMode == Mode.Editor)
+            {
+                Player player = (Player) sender;
+                Model.Type pieceType = (Model.Type)((Move)action.Object).From.Coordinate.Y;
+                Piece piece = player.PieceFactory.CountedInstanceOf(pieceType);
+                SetOnGrid(piece, (Tile)Grid.GetChildAtPoint(((Move)action.Object).To.Coordinate));
+                if (piece != null)
+                    DekPanel.UpdateDekWith(piece);
 
-        #endregion
-
-
+                DekPanel.Selected.Focus();
+            }
+        }
     }
 }

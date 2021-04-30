@@ -51,7 +51,7 @@ namespace Stratego.View
 
         public void OnTileClick(object sender, EventArgs e)
         {
-            ActionEvent click = new ActionEvent()
+            ActionEventArgs click = new ActionEventArgs()
             {
                 ActionType = ActionType.TileClick,
                 Object = (Tile)sender,

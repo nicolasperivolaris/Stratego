@@ -1,25 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Drawing;
 using System.Linq;
 using System.Net;
-using System.Net.Sockets;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using Stratego;
 using Stratego.Utils;
 using Stratego.Model;
 using StrategoServer.Games;
-using Stratego.Network;
+using Stratego.Sockets.Network;
 
 namespace StrategoServer
 {
@@ -34,7 +21,7 @@ namespace StrategoServer
         public MainWindow()
         {
             InitializeComponent();
-            Server = new Server(null);
+            Server = new Server();
             Server.PartnerArrival += OnNewClient;
             Server.DataReceived += OnDataReceived;
             DataContext = Games;

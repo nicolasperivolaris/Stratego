@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Stratego.Network
+namespace Stratego.Sockets.Network
 {
     public class StringEventArgs : EventArgs
     {

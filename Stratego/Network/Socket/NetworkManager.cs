@@ -1,11 +1,10 @@
-﻿using Stratego.Network;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
-namespace Stratego.Network
+namespace Stratego.Sockets.Network
 {
     public abstract class NetworkManager
     {
@@ -16,14 +15,7 @@ namespace Stratego.Network
 
         public const string EOL = "<EOL>";
 
-        public Serializer Serializer { get; set; }
-
         public Socket ListeningSocket { get; set; }
-
-        public NetworkManager(Serializer serializer)
-        {
-            Serializer = serializer;
-        }
 
         public abstract void Connect();
 
@@ -92,8 +84,6 @@ namespace Stratego.Network
         {
             ListeningSocket.Close();
         }
-
-        public abstract List<IPAddress> GetPartnersAddress();
 
         // State object for reading client data asynchronously  
         protected class StateObject

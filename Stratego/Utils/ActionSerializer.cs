@@ -13,7 +13,7 @@ using System.Xml.Serialization;
 namespace Stratego.Utils
 {
 
-    public class ActionSerializer : Serializer
+    public class ActionSerializer
     {
         public Player Player;
         public ActionType ActionType;

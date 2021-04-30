@@ -14,7 +14,7 @@ namespace Stratego.View
         private event EventHandler TileClick;
 
         private bool _selectable = false;
-
+        
         public bool Selectable
         {
             get { return _selectable; }
@@ -30,7 +30,7 @@ namespace Stratego.View
             this.TileClick = tileClickListener;
         }
 
-        protected void OnTileClick(object sender, ActionEvent e)
+        protected void OnTileClick(object sender, ActionEventArgs e)
         {
             Invoke((MethodInvoker)delegate ()
             {

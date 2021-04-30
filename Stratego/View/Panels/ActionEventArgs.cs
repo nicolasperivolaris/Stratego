@@ -1,11 +1,12 @@
-﻿using System.Windows.Forms;
+﻿using Stratego.View;
+using System.Windows.Forms;
 
 namespace Stratego.Model.Panels
 {
-    public class ActionEvent : System.EventArgs
+    public class ActionEventArgs : System.EventArgs
     {
         public ActionType ActionType { get; set; }
-        public Control Sender { get; set; }
+        public Grid Sender { get; set; }
         public object Object { get; set; }
     }
 

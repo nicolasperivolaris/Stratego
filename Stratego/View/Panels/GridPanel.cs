@@ -76,12 +76,12 @@ namespace Stratego.View
         {
             bool? moved = Selected?.Piece?.Move(Selected, (Tile)sender);
 
-            ActionEvent click;
+            ActionEventArgs click;
 
             if (moved == true)
             {
                 Move move = new Move() { From = Selected, To = (Tile)sender };
-                click = new ActionEvent()
+                click = new ActionEventArgs()
                 {
                     ActionType = ActionType.Move,
                     Object = move,
@@ -90,7 +90,7 @@ namespace Stratego.View
             }
             else
             {
-                click = new ActionEvent()
+                click = new ActionEventArgs()
                 {
                     ActionType = ActionType.TileClick,
                     Object = (Tile)sender,

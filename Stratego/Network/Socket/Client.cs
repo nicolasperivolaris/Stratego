@@ -4,12 +4,12 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 
-namespace Stratego.Network
+namespace Stratego.Sockets.Network
 {
     public class Client : NetworkManager
     {
         private IPAddress ServerIP { get; set; }
-        public Client(IPAddress server, Serializer serializer) : base(serializer)
+        public Client(IPAddress server) : base()
         {
             ServerIP = server;
             // Create a TCP/IP socket.  
@@ -57,13 +57,6 @@ namespace Stratego.Network
         public override void Send(string msg)
         {
             Send(ListeningSocket, msg);
-        }
-
-        public override List<IPAddress> GetPartnersAddress()
-        {
-            List<IPAddress> list = new List<IPAddress>();
-            list.Add(ServerIP);
-            return list;
         }
     }
 }

@@ -49,7 +49,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject />
+    <StartupObject>Stratego.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -65,13 +65,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Network\Client.cs" />
+    <Compile Include="Network\Socket\Client.cs" />
+    <Compile Include="Network\NetworkController.cs" />
     <Compile Include="Utils\Flag.cs" />
-    <Compile Include="Network\NetworkManager.cs" />
-    <Compile Include="Network\Server.cs" />
-    <Compile Include="Network\DataReceivedEventArgs.cs" />
+    <Compile Include="Network\Socket\NetworkManager.cs" />
+    <Compile Include="Network\Socket\Server.cs" />
+    <Compile Include="Network\Socket\DataReceivedEventArgs.cs" />
     <Compile Include="Model\Dek.cs" />
-    <Compile Include="Network\Serializer.cs" />
     <Compile Include="Utils\ActionSerializer.cs" />
     <Compile Include="View\ConnectDialog.cs">
       <SubType>Form</SubType>
@@ -88,7 +88,7 @@
     <Compile Include="View\Panels\GridPanel.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="View\Panels\ActionEvent.cs" />
+    <Compile Include="View\Panels\ActionEventArgs.cs" />
     <Compile Include="Model\Pieces\Move.cs" />
     <Compile Include="Model\Pieces\Demineur.cs" />
     <Compile Include="Model\Pieces\PieceFactory.cs" />

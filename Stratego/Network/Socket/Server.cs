@@ -6,13 +6,13 @@ using System.Net;
 using System.Net.Sockets;
 using System.Xml.Serialization;
 
-namespace Stratego.Network
+namespace Stratego.Sockets.Network
 {
     public class Server : NetworkManager
     {
         public List<Socket> Clients { get; private set; }
 
-        public Server(Serializer serializer) : base(serializer)
+        public Server() : base()
         {
             Clients = new List<Socket>();
 
@@ -90,16 +90,6 @@ namespace Stratego.Network
             {
                 Send(client, msg);
             }
-        }
-
-        public override List<IPAddress> GetPartnersAddress()
-        {
-            List<IPAddress> list = new List<IPAddress>();
-            foreach (Socket socket in Clients)
-            {
-                list.Add(((IPEndPoint)socket.RemoteEndPoint).Address);
-            }
-            return list;
         }
 
         public override void CloseConnection()
