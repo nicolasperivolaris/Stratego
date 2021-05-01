@@ -28,12 +28,6 @@ namespace Stratego
                 Number = 0,
                 Address = System.Net.IPAddress.Loopback
             };
-            players[Program.ENEMI] = new Player
-            {
-                Name = "Player 2",
-                Color = Color.IndianRed,
-                Number = 1
-            };
             Map map = new Map(players);
 
             Application.Run(map);

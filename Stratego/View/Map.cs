@@ -35,7 +35,7 @@ namespace Stratego.View
 
         public Stack<Move> MovesHistory
         {
-            get;set;
+            get;private set;
         }
 
         public int PlayerAmount { get; private set; }
@@ -43,13 +43,13 @@ namespace Stratego.View
         private Mode _statusMode;
         private Mode _multiMode;
 
-        public Map(Player[] players)
+        public Map(Player[] Tab)
         {
             Players = new Dictionary<int, Player>();
             InitializeComponent();
-            foreach (Player player in players)
+            foreach (Player player in Tab)
             {
-                Players.Add(player.Number, player);
+                if(player != null)Players.Add(player.Number, player);
             }
             Grid = new GridPanel(OnTileClick, Players)
             {
@@ -120,7 +120,6 @@ namespace Stratego.View
         private void AddPlayerPieces(Player player)
         {
             DekPanel.AddPlayer(player);
-            //ActiveControl = DekPanel.Controls[0]; 
         }
 
         // Important events for other players
@@ -227,13 +226,26 @@ namespace Stratego.View
                 {
                     address = IPAddress.Loopback; //default : (debug only)
                 }
-                NetworkController = new NetworkController(Players[Program.PLAYER]);
-                NetworkController.StartAsClient(address);
+                NetworkController = new NetworkController();
+                NetworkController.StartAsClient(address, Players[Program.PLAYER]);
+                NetworkController.PlayerConnection += OnPlayerConnection;
                 NetworkController.Message += OnChatMessage;
                 NetworkController.Action += OnPartnerAction;
             }
 
             connectDialog.Dispose();
+        }
+
+        private void OnPlayerConnection(object sender, PlayerEventArgs e)
+        {
+            Player p = new Player
+            {
+                Color = e.Player.Color,
+                Number = e.Player.Number
+            };
+
+            Players.Add(Program.ENEMI, p);
+            AddPlayerPieces(p);
         }
 
         private void OnPartnerAction(object sender, ActionEventArgs action)

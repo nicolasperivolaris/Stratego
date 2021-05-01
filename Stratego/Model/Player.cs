@@ -9,9 +9,9 @@ namespace Stratego.Model
     {
         public String Name { get; set; }
         public int Number { get; set; }
+        public Color Color { get; set; }
         [XmlIgnoreAttribute]
         public System.Net.IPAddress Address { get; set; }
-        public Color Color { get; set; }
         [XmlIgnoreAttribute]
         public PieceFactory PieceFactory { get; set; }
 

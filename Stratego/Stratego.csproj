@@ -63,6 +63,7 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Network\Socket\Client.cs" />
@@ -144,6 +145,7 @@
       <DependentUpon>PlayerDialog.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="ClassDiagram1.cd" />
+    <None Include="packages.config" />
     <None Include="pattern2.xsd">
       <SubType>Designer</SubType>
     </None>

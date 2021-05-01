@@ -7,8 +7,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Serialization;
 
 namespace Stratego.Network
@@ -18,28 +16,21 @@ namespace Stratego.Network
         public List<Player> Players { get; private set; }
 
         private NetworkManager NetworkManager;
+        //private Dispatcher Dispatcher;
 
         public event EventHandler<PlayerEventArgs> PlayerConnection;
         public event EventHandler<StringEventArgs> Message;
         public event EventHandler<ActionEventArgs> Action;
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="players">The list of the players to load when they connect</param>
-        public NetworkController(Player host)
-        {
-            Players = new List<Player>
-            {
-                host
-            };
-        }
-
         public NetworkController()
         {
             Players = new List<Player>();
-
         }
+        //public NetworkController(Dispatcher dispacher)
+        //{
+        //    Players = new List<Player>();
+        //    Dispatcher = dispacher;
+        //}
 
         /// <summary>
         /// Send an action on the network
@@ -66,9 +57,11 @@ namespace Stratego.Network
             Start(new Server());
         }
 
-        public void StartAsClient(IPAddress address)
+        public void StartAsClient(IPAddress server, Player client)
         {
-            Start(new Client(address));
+            Start(new Client(server));
+            Send(client);
+
         }
 
         private void Start(NetworkManager mode)
@@ -76,20 +69,6 @@ namespace Stratego.Network
             NetworkManager = mode;
             NetworkManager.Connect();
             NetworkManager.DataReceived += OnDataReceived;
-            NetworkManager.PartnerArrival += OnPartnerArrival;
-        }
-
-        private void OnPartnerArrival(object sender, EventArgs e)
-        {
-            foreach (Player player in Players)
-            {
-                if(player.Address == null)
-                {
-                    player.Address = (IPAddress)sender;
-                    return;
-                }
-            }
-
         }
 
         private void OnDataReceived(object sender, StringEventArgs e)
@@ -104,16 +83,16 @@ namespace Stratego.Network
                 o = e.Data;
             }
             else
-            {
-                o = e.Data.Substring(1); //first char is the flag
-            }
+                o = e.Data.Substring(2); //first char is the flag, the second is \n
+
             Player player = Players.FirstOrDefault(p=>p.Address == address);
             switch (f)
             {
                 case Flag.Introducing:
                     {
                         player = TryDeserialize<Player>(o);
-                        Players.Add(player);
+                        player.Address = address;
+                        if(!Players.Contains(player))Players.Add(player);
                         PlayerConnection?.Invoke(this, new PlayerEventArgs(player, f));
                         break; 
                     }

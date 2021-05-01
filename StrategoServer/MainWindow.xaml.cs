@@ -9,6 +9,7 @@ using StrategoServer.Games;
 using Stratego.Sockets.Network;
 using System.Collections.ObjectModel;
 using Stratego.Network;
+using System.Windows.Forms;
 
 namespace StrategoServer
 {
@@ -24,10 +25,12 @@ namespace StrategoServer
         {
             InitializeComponent();
             NetworkController = new NetworkController();
+            NetworkController = new NetworkController();
             NetworkController.StartAsServer();
             NetworkController.PlayerConnection += OnNewClient;
+            Players = new ObservableCollection<Player>(NetworkController.Players);
             Games = new ObservableCollection<Game>();
-            gamesList.ItemsSource = Games;
+            gamesList.ItemsSource = Players;
         }
 
         public void OnGameListChange(object sender, EventArgs e)
@@ -35,37 +38,12 @@ namespace StrategoServer
 
         }
 
-        private void OnDataReceived(object sender, EventArgs e)
+        private void OnNewClient(object sender, PlayerEventArgs e)
         {
-            if (e is StringEventArgs args)
+            Dispatcher.BeginInvoke((MethodInvoker)delegate ()
             {
-                Enum.TryParse(args.Data.Split('\n')[0], out Flag flag);
-                switch (flag)
-                {
-                    case Flag.Introducing:
-                        Players.First(p => p.Address == (IPAddress)sender);
-                        break;
-                    case Flag.Map:
-                        break;
-                    case Flag.Action:
-                        break;
-                    case Flag.Quit:
-                        break;
-                    case Flag.Message:
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-
-        private void OnNewClient(object sender, EventArgs e)
-        {
-            Player player = new Player()
-            {
-                Address = (IPAddress)sender
-            };
-            Players.Add(player);
+                Players.Add(e.Player);
+            });
         }
     }
 }
