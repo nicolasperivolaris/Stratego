@@ -7,6 +7,8 @@ using Stratego.Utils;
 using Stratego.Model;
 using StrategoServer.Games;
 using Stratego.Sockets.Network;
+using System.Collections.ObjectModel;
+using Stratego.Network;
 
 namespace StrategoServer
 {
@@ -15,16 +17,22 @@ namespace StrategoServer
     /// </summary>
     public partial class MainWindow : Window
     {
-        public Server Server { get; set; }
-        public List<Game> Games { get; set; }
-        public List<Player> Players { get; set; }
+        public ObservableCollection<Game> Games { get; set; }
+        public ObservableCollection<Player> Players { get; set; }
+        public NetworkController NetworkController { get; set; }
         public MainWindow()
         {
             InitializeComponent();
-            Server = new Server();
-            Server.PartnerArrival += OnNewClient;
-            Server.DataReceived += OnDataReceived;
-            DataContext = Games;
+            NetworkController = new NetworkController();
+            NetworkController.StartAsServer();
+            NetworkController.PlayerConnection += OnNewClient;
+            Games = new ObservableCollection<Game>();
+            gamesList.ItemsSource = Games;
+        }
+
+        public void OnGameListChange(object sender, EventArgs e)
+        {
+
         }
 
         private void OnDataReceived(object sender, EventArgs e)

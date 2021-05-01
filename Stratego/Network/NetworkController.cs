@@ -15,11 +15,11 @@ namespace Stratego.Network
 {
     public class NetworkController
     {
-        public List<Player> Players { get; set; }
+        public List<Player> Players { get; private set; }
 
         private NetworkManager NetworkManager;
 
-        public event EventHandler PlayerConnection;
+        public event EventHandler<PlayerEventArgs> PlayerConnection;
         public event EventHandler<StringEventArgs> Message;
         public event EventHandler<ActionEventArgs> Action;
 
@@ -27,8 +27,17 @@ namespace Stratego.Network
         /// 
         /// </summary>
         /// <param name="players">The list of the players to load when they connect</param>
-        public NetworkController(List<Player> players)
+        public NetworkController(Player host)
         {
+            Players = new List<Player>
+            {
+                host
+            };
+        }
+
+        public NetworkController()
+        {
+            Players = new List<Player>();
 
         }
 
@@ -83,12 +92,21 @@ namespace Stratego.Network
 
         }
 
-        private void OnDataReceived(object sender, EventArgs e)
+        private void OnDataReceived(object sender, StringEventArgs e)
         {
             IPAddress address = (IPAddress)sender;
 
-            Flag f = (Flag)Enum.Parse(typeof(Flag), ((StringEventArgs)e).Data[0] + "");
-            String o = ((StringEventArgs)e).Data.Substring(1); //first char is the flag
+            Flag f;
+            String o;
+            if (Enum.TryParse(e.Data[0] + "", out f) == false) 
+            {
+                f = Flag.Message;
+                o = e.Data;
+            }
+            else
+            {
+                o = e.Data.Substring(1); //first char is the flag
+            }
             Player player = Players.FirstOrDefault(p=>p.Address == address);
             switch (f)
             {
@@ -96,18 +114,17 @@ namespace Stratego.Network
                     {
                         player = TryDeserialize<Player>(o);
                         Players.Add(player);
-                        PlayerConnection(this, e);
+                        PlayerConnection?.Invoke(this, new PlayerEventArgs(player, f));
                         break; 
                     }
                 case Flag.Action:
-                    Action(this,TryDeserialize<ActionEventArgs>(o));
+                    Action?.Invoke(this,TryDeserialize<ActionEventArgs>(o));
                     break;
                 case Flag.Quit:
                     break;
                 case Flag.Message:
-                    Message(this, new StringEventArgs(o));
-                    break;
                 default:
+                    Message?.Invoke(this, new StringEventArgs(o));
                     break;
             }
         }

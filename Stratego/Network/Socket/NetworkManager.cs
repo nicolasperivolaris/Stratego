@@ -10,7 +10,7 @@ namespace Stratego.Sockets.Network
     {
         public readonly int Port = 5500;
 
-        public event EventHandler DataReceived;
+        public event EventHandler<StringEventArgs> DataReceived;
         public event EventHandler PartnerArrival;
 
         public const string EOL = "<EOL>";
@@ -72,7 +72,7 @@ namespace Stratego.Sockets.Network
 
         protected void OnPartnerArrival(Socket partner)
         {
-            PartnerArrival?.Invoke(((IPEndPoint)partner.RemoteEndPoint).Address, null);
+            PartnerArrival?.Invoke(((IPEndPoint)partner.RemoteEndPoint).Address, EventArgs.Empty);
         }
 
         protected virtual void OnReceived(StringEventArgs e)

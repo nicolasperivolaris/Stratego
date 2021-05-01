@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Stratego.Model;
+using Stratego.Utils;
+using System;
 
 namespace Stratego.Sockets.Network
 {
@@ -14,6 +16,18 @@ namespace Stratego.Sockets.Network
         public override String ToString()
         {
             return Data;
+        }
+    }
+
+    public class PlayerEventArgs : EventArgs
+    {
+        public Player Player { get; set; }
+        public Flag Flag{ get; set; }
+
+        public PlayerEventArgs(Player player, Flag flag)
+        {
+            Player = player;
+            Flag = flag;
         }
     }
 }

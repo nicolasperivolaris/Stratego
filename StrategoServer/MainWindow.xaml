@@ -9,13 +9,7 @@
         Title="MainWindow" Height="450" Width="800">
     <DockPanel >
         <DockPanel >
-            <ListBox ItemsSource="{Binding}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding Name}" />
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ListBox>
+            <ListBox x:Name="gamesList" DisplayMemberPath="Name" SelectionChanged="OnGameListChange"/>
             <Separator VerticalAlignment="Center"></Separator>
             <ListView DockPanel.Dock="Right">
                 <Label Content="hello" ></Label>

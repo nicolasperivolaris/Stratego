@@ -227,6 +227,7 @@ namespace Stratego.View
                 {
                     address = IPAddress.Loopback; //default : (debug only)
                 }
+                NetworkController = new NetworkController(Players[Program.PLAYER]);
                 NetworkController.StartAsClient(address);
                 NetworkController.Message += OnChatMessage;
                 NetworkController.Action += OnPartnerAction;
