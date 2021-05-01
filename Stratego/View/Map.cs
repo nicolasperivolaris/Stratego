@@ -250,5 +250,11 @@ namespace Stratego.View
                 DekPanel.Selected.Focus();
             }
         }
+
+        private void PlayerPropertiesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            PlayerDialog dia = new PlayerDialog(Players[Program.PLAYER]);
+            dia.ShowDialog(this);
+        }
     }
 }

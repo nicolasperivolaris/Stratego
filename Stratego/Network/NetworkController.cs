@@ -129,7 +129,7 @@ namespace Stratego.Network
             }
         }
 
-        private String Serialize(object o)
+        public static String Serialize(object o)
         {
             XmlSerializer serializer = new XmlSerializer(o.GetType());
             using (TextWriter tw = new StringWriter())
@@ -139,7 +139,7 @@ namespace Stratego.Network
             }
         }
 
-        private static T TryDeserialize<T>(String data)
+        public static T TryDeserialize<T>(String data)
         {
 
             XmlSerializer serializer = new XmlSerializer(typeof(T));

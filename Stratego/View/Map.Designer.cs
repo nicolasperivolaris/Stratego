@@ -33,11 +33,15 @@ namespace Stratego.View
             this.content = new System.Windows.Forms.TableLayoutPanel();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.playersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.playersToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.playersToolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
+            this.customToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mapEditorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.createArmyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.PlayerPropertyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.startToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.stopToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.netwerkToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -46,10 +50,6 @@ namespace Stratego.View
             this.addressesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.chatBox = new System.Windows.Forms.ToolStripTextBox();
-            this.playersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.playersToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.playersToolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
-            this.customToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -86,26 +86,50 @@ namespace Stratego.View
             this.playersToolStripMenuItem2,
             this.customToolStripMenuItem});
             this.newToolStripMenuItem.Name = "newToolStripMenuItem";
-            this.newToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.newToolStripMenuItem.Size = new System.Drawing.Size(128, 26);
             this.newToolStripMenuItem.Text = "New";
+            // 
+            // playersToolStripMenuItem
+            // 
+            this.playersToolStripMenuItem.Name = "playersToolStripMenuItem";
+            this.playersToolStripMenuItem.Size = new System.Drawing.Size(151, 26);
+            this.playersToolStripMenuItem.Text = "2 players";
+            // 
+            // playersToolStripMenuItem1
+            // 
+            this.playersToolStripMenuItem1.Name = "playersToolStripMenuItem1";
+            this.playersToolStripMenuItem1.Size = new System.Drawing.Size(151, 26);
+            this.playersToolStripMenuItem1.Text = "3 players";
+            // 
+            // playersToolStripMenuItem2
+            // 
+            this.playersToolStripMenuItem2.Name = "playersToolStripMenuItem2";
+            this.playersToolStripMenuItem2.Size = new System.Drawing.Size(151, 26);
+            this.playersToolStripMenuItem2.Text = "4 players";
+            // 
+            // customToolStripMenuItem
+            // 
+            this.customToolStripMenuItem.Name = "customToolStripMenuItem";
+            this.customToolStripMenuItem.Size = new System.Drawing.Size(151, 26);
+            this.customToolStripMenuItem.Text = "Custom";
             // 
             // openToolStripMenuItem
             // 
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(128, 26);
             this.openToolStripMenuItem.Text = "Open";
             // 
             // saveToolStripMenuItem
             // 
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(128, 26);
             this.saveToolStripMenuItem.Text = "Save";
             // 
             // editToolStripMenuItem
             // 
             this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.mapEditorToolStripMenuItem,
-            this.createArmyToolStripMenuItem,
+            this.PlayerPropertyToolStripMenuItem,
             this.startToolStripMenuItem,
             this.stopToolStripMenuItem});
             this.editToolStripMenuItem.Name = "editToolStripMenuItem";
@@ -116,14 +140,15 @@ namespace Stratego.View
             // 
             this.mapEditorToolStripMenuItem.Name = "mapEditorToolStripMenuItem";
             this.mapEditorToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
-            this.mapEditorToolStripMenuItem.Text = "Editor Mode";
+            this.mapEditorToolStripMenuItem.Text = "Set up Army";
             this.mapEditorToolStripMenuItem.Click += new System.EventHandler(this.EditorModeClick);
             // 
-            // createArmyToolStripMenuItem
+            // PlayerPropertyToolStripMenuItem
             // 
-            this.createArmyToolStripMenuItem.Name = "createArmyToolStripMenuItem";
-            this.createArmyToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
-            this.createArmyToolStripMenuItem.Text = "Set up Army";
+            this.PlayerPropertyToolStripMenuItem.Name = "PlayerPropertiesToolStripMenuItem";
+            this.PlayerPropertyToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.PlayerPropertyToolStripMenuItem.Text = "Player Properties";
+            this.PlayerPropertyToolStripMenuItem.Click += new System.EventHandler(this.PlayerPropertiesToolStripMenuItem_Click);
             // 
             // startToolStripMenuItem
             // 
@@ -185,32 +210,9 @@ namespace Stratego.View
             // chatBox
             // 
             this.chatBox.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.chatBox.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.chatBox.Name = "chatBox";
             this.chatBox.Size = new System.Drawing.Size(200, 27);
-            // 
-            // playersToolStripMenuItem
-            // 
-            this.playersToolStripMenuItem.Name = "playersToolStripMenuItem";
-            this.playersToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
-            this.playersToolStripMenuItem.Text = "2 players";
-            // 
-            // playersToolStripMenuItem1
-            // 
-            this.playersToolStripMenuItem1.Name = "playersToolStripMenuItem1";
-            this.playersToolStripMenuItem1.Size = new System.Drawing.Size(224, 26);
-            this.playersToolStripMenuItem1.Text = "3 players";
-            // 
-            // playersToolStripMenuItem2
-            // 
-            this.playersToolStripMenuItem2.Name = "playersToolStripMenuItem2";
-            this.playersToolStripMenuItem2.Size = new System.Drawing.Size(224, 26);
-            this.playersToolStripMenuItem2.Text = "4 players";
-            // 
-            // customToolStripMenuItem
-            // 
-            this.customToolStripMenuItem.Name = "customToolStripMenuItem";
-            this.customToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
-            this.customToolStripMenuItem.Text = "Custom";
             // 
             // Map
             // 
@@ -240,7 +242,7 @@ namespace Stratego.View
         private System.Windows.Forms.ToolStripMenuItem saveToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem mapEditorToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem createArmyToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem PlayerPropertyToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem startToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem stopToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem netwerkToolStripMenuItem;

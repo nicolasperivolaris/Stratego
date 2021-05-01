@@ -114,6 +114,12 @@
     <Compile Include="View\Map.Designer.cs">
       <DependentUpon>Map.cs</DependentUpon>
     </Compile>
+    <Compile Include="View\PlayerDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="View\PlayerDialog.Designer.cs">
+      <DependentUpon>PlayerDialog.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="Model\Tiles\Tile.resx">
       <DependentUpon>Tile.cs</DependentUpon>
     </EmbeddedResource>
@@ -134,10 +140,14 @@
       <DependentUpon>Map.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EmbeddedResource Include="View\PlayerDialog.resx">
+      <DependentUpon>PlayerDialog.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="ClassDiagram1.cd" />
     <None Include="pattern2.xsd">
       <SubType>Designer</SubType>
     </None>
+    <None Include="Properties\DataSources\Stratego.Model.Player.datasource" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
