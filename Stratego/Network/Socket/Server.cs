@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Xml.Serialization;
@@ -20,22 +21,6 @@ namespace Stratego.Sockets.Network
                 SocketType.Stream, ProtocolType.Tcp);
             IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Any, Port);
             ListeningSocket.Bind(localEndPoint);
-        }
-
-        public void SendToAll(object serializable)
-        {
-            XmlSerializer serializer = new XmlSerializer(serializable.GetType());
-            TextWriter tw = new StringWriter();
-            serializer.Serialize(tw, serializable);
-
-            foreach (Socket client in Clients)
-                Send(client, tw.ToString());
-        }
-
-        public void SendToAll(String data)
-        {
-            foreach (Socket client in Clients)
-                Send(client, data);
         }
 
         public override void Connect()
@@ -87,9 +72,7 @@ namespace Stratego.Sockets.Network
         public override void Send(string msg)
         {
             foreach (Socket client in Clients)
-            {
                 Send(client, msg);
-            }
         }
 
         public override void CloseConnection()
@@ -98,6 +81,15 @@ namespace Stratego.Sockets.Network
             foreach (Socket client in Clients)
             {
                 client.Close();
+            }
+        }
+
+        public override void SendTo(string msg, List<IPAddress> partners)
+        {
+            foreach (IPAddress partner in partners)
+            {
+                Socket client = Clients.FirstOrDefault(c => ((IPEndPoint)c.RemoteEndPoint).Address == partner);
+                if (client != null) Send(client, msg);
             }
         }
     }

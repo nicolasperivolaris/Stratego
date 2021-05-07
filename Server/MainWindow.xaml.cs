@@ -1,26 +1,28 @@
-﻿using System;
+﻿using Server.Model;
+using Server.Server;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
-using Stratego.Utils;
-using Stratego.Model;
-using StrategoServer.Games;
-using Stratego.Sockets.Network;
-using System.Collections.ObjectModel;
-using Stratego.Network;
-using Stratego.Model.Panels;
-using StrategoServer.Server;
 using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
 
-namespace StrategoServer
+namespace Server
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
     {
-        ServerController ServerController;
+       ServerController ServerController;
         public MainWindow()
         {
             InitializeComponent();

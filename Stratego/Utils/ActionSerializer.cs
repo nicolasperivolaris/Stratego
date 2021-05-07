@@ -17,17 +17,10 @@ namespace Stratego.Utils
     {
         public Player Player;
         public ActionType ActionType;
-        public Point from = new Point();
-        public Point to = new Point();
+        public Move Move;
 
         public ActionSerializer()
         {
-        }
-
-        public ActionSerializer(Move move)
-        {
-            from = move.From.Coordinate;
-            to = move.To.Coordinate;
         }
 
         public int GetSize()

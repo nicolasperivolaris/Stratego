@@ -22,12 +22,10 @@ namespace Stratego.Sockets.Network
     public class PlayerEventArgs : EventArgs
     {
         public Player Player { get; set; }
-        public Flag Flag{ get; set; }
 
-        public PlayerEventArgs(Player player, Flag flag)
+        public PlayerEventArgs(Player player)
         {
             Player = player;
-            Flag = flag;
         }
     }
 }

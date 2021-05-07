@@ -21,6 +21,8 @@ namespace Stratego.Sockets.Network
 
         public abstract void Send(String msg);
 
+        public abstract void SendTo(String msg, List<IPAddress> partners);
+
         protected void Send(Socket EndPoint, String data)
         {
             // Convert the string data to byte data using ASCII encoding.  

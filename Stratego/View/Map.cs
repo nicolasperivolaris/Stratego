@@ -33,11 +33,6 @@ namespace Stratego.View
             get; private set;
         }
 
-        public Stack<Move> MovesHistory
-        {
-            get;private set;
-        }
-
         public int PlayerAmount { get; private set; }
 
         private Mode _statusMode;
@@ -74,8 +69,6 @@ namespace Stratego.View
             {
                 AddPlayerPieces(player);
             }
-
-            MovesHistory = new Stack<Move>();
         }
 
         private void OnChatMessage(object sender, StringEventArgs msg)
@@ -96,7 +89,6 @@ namespace Stratego.View
                     if (actionEvent.ActionType == ActionType.Move)
                     {
                         OnMove(actionEvent);
-                        MovesHistory.Push((Move)actionEvent.Object);
                     }
                     break;
                 case Mode.Editor:
@@ -133,12 +125,11 @@ namespace Stratego.View
 
         private void OnMove(ActionEventArgs e)
         {
-            //Todo send info to clients
             ActionSerializer actionSerializer = new ActionSerializer()
             {
                 ActionType = e.ActionType,
-                from = ((Move)e.Object).From.Coordinate,
-                to = ((Move)e.Object).To.Coordinate
+                Move = (Move)e.Object,
+                Player = Players[Program.PLAYER]
             };
             NetworkController.Send(actionSerializer);
         }

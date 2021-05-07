@@ -18,7 +18,17 @@ namespace StrategoServer.Games
         {
             Name = name;
             MaxPlayer = maxPlayer;
+            Players = new List<Player>();
         }
-        
+
+        public void Add(Player player)
+        {
+            Players.Add(player);
+        }
+
+        public bool AcceptPlayers()
+        {
+            return Players.Count < MaxPlayer;
+        }
     }
 }

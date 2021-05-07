@@ -68,7 +68,7 @@
   <ItemGroup>
     <Compile Include="Network\Socket\Client.cs" />
     <Compile Include="Network\NetworkController.cs" />
-    <Compile Include="Utils\Flag.cs" />
+    <Compile Include="Network\Flag.cs" />
     <Compile Include="Network\Socket\NetworkManager.cs" />
     <Compile Include="Network\Socket\Server.cs" />
     <Compile Include="Network\Socket\DataReceivedEventArgs.cs" />

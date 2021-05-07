@@ -58,5 +58,12 @@ namespace Stratego.Sockets.Network
         {
             Send(ListeningSocket, msg);
         }
+        public override void SendTo(string msg, List<IPAddress> partners)
+        {
+            foreach (IPAddress partner in partners)
+            {
+                if (((IPEndPoint)ListeningSocket.RemoteEndPoint).Address == partner) Send(ListeningSocket, msg);
+            }
+        }
     }
 }

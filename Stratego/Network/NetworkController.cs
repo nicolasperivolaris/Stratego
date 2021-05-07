@@ -26,11 +26,6 @@ namespace Stratego.Network
         {
             Players = new List<Player>();
         }
-        //public NetworkController(Dispatcher dispacher)
-        //{
-        //    Players = new List<Player>();
-        //    Dispatcher = dispacher;
-        //}
 
         /// <summary>
         /// Send an action on the network
@@ -44,7 +39,7 @@ namespace Stratego.Network
             if (o is String) f = Flag.Message;
 
             //Flag is the first char of a msg
-            NetworkManager.Send((int)f + "\n" + Serialize(o));
+            NetworkManager.Send((int)f + Serialize(o));
         }
 
         public void StopWaiting()
@@ -83,7 +78,7 @@ namespace Stratego.Network
                 o = e.Data;
             }
             else
-                o = e.Data.Substring(2); //first char is the flag, the second is \n
+                o = e.Data.Substring(1); //first char is the flag
 
             Player player = Players.FirstOrDefault(p=>p.Address == address);
             switch (f)
@@ -93,7 +88,7 @@ namespace Stratego.Network
                         player = TryDeserialize<Player>(o);
                         player.Address = address;
                         if(!Players.Contains(player))Players.Add(player);
-                        PlayerConnection?.Invoke(this, new PlayerEventArgs(player, f));
+                        PlayerConnection?.Invoke(this, new PlayerEventArgs(player));
                         break; 
                     }
                 case Flag.Action:
