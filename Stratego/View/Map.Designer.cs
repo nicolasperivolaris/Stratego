@@ -30,7 +30,6 @@ namespace Stratego.View
         /// </summary>
         private void InitializeComponent()
         {
-            this.content = new System.Windows.Forms.TableLayoutPanel();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.playersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -50,23 +49,9 @@ namespace Stratego.View
             this.addressesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.chatBox = new System.Windows.Forms.ToolStripTextBox();
+            this.content = new System.Windows.Forms.TableLayoutPanel();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // content
-            // 
-            this.content.ColumnCount = 2;
-            this.content.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 70.625F));
-            this.content.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 29.375F));
-            this.content.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.content.GrowStyle = System.Windows.Forms.TableLayoutPanelGrowStyle.AddColumns;
-            this.content.Location = new System.Drawing.Point(0, 31);
-            this.content.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.content.Name = "content";
-            this.content.RowCount = 1;
-            this.content.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 422F));
-            this.content.Size = new System.Drawing.Size(800, 419);
-            this.content.TabIndex = 2;
             // 
             // fileToolStripMenuItem
             // 
@@ -139,27 +124,27 @@ namespace Stratego.View
             // mapEditorToolStripMenuItem
             // 
             this.mapEditorToolStripMenuItem.Name = "mapEditorToolStripMenuItem";
-            this.mapEditorToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.mapEditorToolStripMenuItem.Size = new System.Drawing.Size(203, 26);
             this.mapEditorToolStripMenuItem.Text = "Set up Army";
             this.mapEditorToolStripMenuItem.Click += new System.EventHandler(this.EditorModeClick);
             // 
             // PlayerPropertyToolStripMenuItem
             // 
-            this.PlayerPropertyToolStripMenuItem.Name = "PlayerPropertiesToolStripMenuItem";
-            this.PlayerPropertyToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.PlayerPropertyToolStripMenuItem.Name = "PlayerPropertyToolStripMenuItem";
+            this.PlayerPropertyToolStripMenuItem.Size = new System.Drawing.Size(203, 26);
             this.PlayerPropertyToolStripMenuItem.Text = "Player Properties";
             this.PlayerPropertyToolStripMenuItem.Click += new System.EventHandler(this.PlayerPropertiesToolStripMenuItem_Click);
             // 
             // startToolStripMenuItem
             // 
             this.startToolStripMenuItem.Name = "startToolStripMenuItem";
-            this.startToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.startToolStripMenuItem.Size = new System.Drawing.Size(203, 26);
             this.startToolStripMenuItem.Text = "Start";
             // 
             // stopToolStripMenuItem
             // 
             this.stopToolStripMenuItem.Name = "stopToolStripMenuItem";
-            this.stopToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.stopToolStripMenuItem.Size = new System.Drawing.Size(203, 26);
             this.stopToolStripMenuItem.Text = "Stop";
             // 
             // netwerkToolStripMenuItem
@@ -214,6 +199,22 @@ namespace Stratego.View
             this.chatBox.Name = "chatBox";
             this.chatBox.Size = new System.Drawing.Size(200, 27);
             // 
+            // content
+            // 
+            this.content.AutoSize = true;
+            this.content.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.content.ColumnCount = 2;
+            this.content.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 78.125F));
+            this.content.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 21.875F));
+            this.content.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.content.Location = new System.Drawing.Point(0, 31);
+            this.content.Name = "content";
+            this.content.RowCount = 1;
+            this.content.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.content.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.content.Size = new System.Drawing.Size(800, 419);
+            this.content.TabIndex = 2;
+            // 
             // Map
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -234,7 +235,6 @@ namespace Stratego.View
         }
 
         #endregion
-        private System.Windows.Forms.TableLayoutPanel content;
         private System.Windows.Forms.ToolStripProgressBar toolStripProgressBar;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem newToolStripMenuItem;
@@ -255,5 +255,6 @@ namespace Stratego.View
         private System.Windows.Forms.ToolStripMenuItem playersToolStripMenuItem1;
         private System.Windows.Forms.ToolStripMenuItem playersToolStripMenuItem2;
         private System.Windows.Forms.ToolStripMenuItem customToolStripMenuItem;
+        private System.Windows.Forms.TableLayoutPanel content;
     }
 }

@@ -1,18 +1,22 @@
-﻿using System;
+﻿using Stratego.Model.Tiles;
+using System;
+using System.Collections.Generic;
 
 namespace Stratego.Model
 {
-    public class Piece
+    public class Piece : IEquatable<Piece>
     {
-        public String Name { get; internal set; }
+        public String Name { get; set; }
 
-        public Player Player { get; internal set; }
+        public Player Player { get; set; }
 
-        public int MaxAmount { get; internal set; }
+        public int MaxAmount { get; set; }
 
-        public Type Type { get; private set; }
+        public Type Type { get; set; }
 
-        internal Piece(Type type, Player player)
+        public Piece() { }
+
+        public Piece(Type type, Player player)
         {
             Type = type;
             Player = player;
@@ -68,6 +72,26 @@ namespace Stratego.Model
             {
                 return false;
             }
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as Piece);
+        }
+
+        public bool Equals(Piece other)
+        {
+            return other != null &&
+                   EqualityComparer<Player>.Default.Equals(Player, other.Player) &&
+                   Type == other.Type;
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = 969200013;
+            hashCode = hashCode * -1521134295 + EqualityComparer<Player>.Default.GetHashCode(Player);
+            hashCode = hashCode * -1521134295 + Type.GetHashCode();
+            return hashCode;
         }
     }
 

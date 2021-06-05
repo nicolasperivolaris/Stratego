@@ -1,8 +1,8 @@
 ﻿namespace Stratego.Model
 {
-    public class HoleTile : Tile
+    public class ViewHoleTile : ViewTile
     {
-        public HoleTile(int row, int column) : base(row, column)
+        public ViewHoleTile() : base()
         {
             this.BackColor = System.Drawing.SystemColors.HotTrack;
         }

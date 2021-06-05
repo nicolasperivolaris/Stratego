@@ -1,4 +1,5 @@
 ﻿using Stratego.Model;
+using Stratego.Utils;
 using Stratego.View;
 using System;
 using System.Drawing;
@@ -28,10 +29,8 @@ namespace Stratego
                 Number = 0,
                 Address = System.Net.IPAddress.Loopback
             };
-            Map map = new Map(players);
-
-            Application.Run(map);
-
+            GameControler controler = new GameControler(players);
+            controler.Start();
         }
     }
 }

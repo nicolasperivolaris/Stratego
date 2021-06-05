@@ -14,10 +14,13 @@ namespace Stratego.Model
         public System.Net.IPAddress Address { get; set; }
         [XmlIgnoreAttribute]
         public PieceFactory PieceFactory { get; set; }
+        [XmlIgnoreAttribute]
+        public Dek Dek { get; set; }
 
         public Player()
         {
             PieceFactory = new PieceFactory(this);
+            Dek = new Dek(PieceFactory);
         }
     }
 }

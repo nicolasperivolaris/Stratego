@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Stratego.Model.Tiles;
+using System;
 
 namespace Stratego.Model
 {
@@ -7,6 +8,8 @@ namespace Stratego.Model
         public Tile From { get; set; }
 
         public Tile To { get; set; }
+
+        public Move() { }
 
         public int Lenght()
         {

@@ -1,39 +1,56 @@
 ﻿using Stratego.Model;
-using Stratego.Model.Panels;
+using Stratego.Model.Pieces;
+using Stratego.Model.Tiles;
+using Stratego.Utils;
+using Stratego.View.Tiles;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace Stratego.View
 {
-    public class DekPanel : Grid
+    public class DekPanel : ViewGrid
     {
-        public Dictionary<Player, Dek> Deks = new Dictionary<Player, Dek>();
-
-        public override Tile Selected
+        public List<Dek> Deks = new List<Dek>();
+        private ViewTile _SelectedTile;
+        public override ViewTile SelectedTile
         {
-            get { return _lastClicked; }
+            get { return _SelectedTile; }
             set
             {
-                if (_lastClicked != null) _lastClicked.BackColor = _lastClicked.Piece.Player.Color;
+                if (_SelectedTile != null) _SelectedTile.BackColor = _SelectedTile.Tile.Piece.Player.Color;
                 if (value != null)
                 {
-                    _lastClicked = value;
-                    _lastClicked.BackColor = _focused;
+                    _SelectedTile = value;
+                    _SelectedTile.BackColor = _focused;
                 }
             }
         }
 
-        public DekPanel(EventHandler TileClickListener) : base(TileClickListener)
+        public DekPanel() : base()
         {
             ColumnCount = 1;
             RowStyles.Clear();
             ColumnStyles.Clear();
+
+            
         }
 
         public void AddPlayer(Player player)
         {
-            Dek dek = new Dek(player, OnTileClick);
+            if (RowStyles.Count == 0)
+            {
+                for (int i = 0; i < player.Dek.Count; i++)
+                {
+                    RowStyles.Add(new RowStyle(SizeType.Percent, 100 / player.Dek.Count));
+                }
+                RowStyles.Add(new RowStyle(SizeType.Absolute, 0));
+
+
+            }
+
+            Dek dek = player.Dek;
             player.PieceFactory.AmountChanged += OnAmountChanged;
             int row = 0;
             ColumnCount++;
@@ -41,36 +58,31 @@ namespace Stratego.View
             foreach (var iTile in dek)
             {
                 int iRow = row % (Enum.GetNames(typeof(Model.Type)).Length - 1);
-                Controls.Add(iTile.Value, player.Number, iRow);
-
-                RowStyles.Add(new RowStyle(SizeType.Percent, 10));
+                Add(GetNewViewTile(iTile.Value), player.Number, iRow);
                 row++;
             }
-            Deks.Add(player, dek);
+            Controls.Add(new Label(), 0, 12);
+            Deks.Add(dek);
         }
 
-        public void OnTileClick(object sender, EventArgs e)
+        private ViewTile GetNewViewTile(Tile value)
         {
-            ActionEventArgs click = new ActionEventArgs()
+            ViewWalkableTile tile = new ViewWalkableTile
             {
-                ActionType = ActionType.TileClick,
-                Object = (Tile)sender,
-                Sender = this
+                Tile = value
             };
-
-            base.OnTileClick(this, click);
+            return tile;
         }
 
-        private void OnAmountChanged(object pieceFactory, Piece piece)
+        public void OnAmountChanged(object sender, Piece piece)
         {
-            Deks[piece.Player][piece.Type].Invoke((MethodInvoker)delegate { Deks[piece.Player][piece.Type].Piece = piece; });
+            ViewWalkableTile tile = Controls.OfType<ViewWalkableTile>().Single(view => (view.Tile.Piece.Equals(piece)));
+            
+            Invoke((MethodInvoker)delegate { tile.UpdateView(); });
         }
 
-        public void UpdateDekWith(Piece piece)
+        protected override void OnTileClick(object tile, TileEventArgs e)
         {
-            Deks[piece.Player][piece.Type].Piece = piece;
         }
     }
-
-
 }

@@ -66,6 +66,8 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Model\Grid.cs" />
+    <Compile Include="Model\Tiles\Tile.cs" />
     <Compile Include="Network\Socket\Client.cs" />
     <Compile Include="Network\NetworkController.cs" />
     <Compile Include="Network\Flag.cs" />
@@ -74,6 +76,8 @@
     <Compile Include="Network\Socket\DataReceivedEventArgs.cs" />
     <Compile Include="Model\Dek.cs" />
     <Compile Include="Utils\ActionSerializer.cs" />
+    <Compile Include="Utils\GameControler.cs" />
+    <Compile Include="Utils\MoveEventArgs.cs" />
     <Compile Include="View\ConnectDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -83,27 +87,28 @@
     <Compile Include="View\Panels\DekPanel.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="View\Panels\Grid.cs">
+    <Compile Include="View\Panels\ViewGrid.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="View\Panels\GridPanel.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="View\Panels\ActionEventArgs.cs" />
+    <Compile Include="Utils\ActionEventArgs.cs" />
     <Compile Include="Model\Pieces\Move.cs" />
     <Compile Include="Model\Pieces\Demineur.cs" />
     <Compile Include="Model\Pieces\PieceFactory.cs" />
     <Compile Include="Model\Player.cs" />
-    <Compile Include="Model\Tiles\HoleTile.cs">
+    <Compile Include="View\Tiles\TileEventArgs.cs" />
+    <Compile Include="View\Tiles\ViewHoleTile.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Model\Pieces\Spy.cs" />
     <Compile Include="Model\Pieces\Piece.cs" />
-    <Compile Include="Model\Tiles\Tile.cs">
+    <Compile Include="View\Tiles\ViewTile.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Model\Pieces\Type.cs" />
-    <Compile Include="Model\Tiles\WalkableTile.cs">
+    <Compile Include="View\Tiles\ViewWalkableTile.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Model\Pieces\Movable.cs" />
@@ -121,8 +126,8 @@
     <Compile Include="View\PlayerDialog.Designer.cs">
       <DependentUpon>PlayerDialog.cs</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="Model\Tiles\Tile.resx">
-      <DependentUpon>Tile.cs</DependentUpon>
+    <EmbeddedResource Include="View\Tiles\ViewTile.resx">
+      <DependentUpon>ViewTile.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -175,5 +180,6 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

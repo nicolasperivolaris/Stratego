@@ -1,22 +1,17 @@
-﻿using System;
+﻿using Stratego.Model.Pieces;
+using Stratego.Model.Tiles;
+using System;
 using System.Collections.Generic;
 
 namespace Stratego.Model
 {
     public class Dek : Dictionary<Model.Type, Tile>
     {
-        public Dek(Player player, EventHandler OnTileClick)
+        public Dek(PieceFactory factory)
         {
-            var set = player.PieceFactory.GetNewPiecesSet();
-            foreach (var piece in set)
+            foreach (var piece in factory.GetNewPiecesSet())
             {
-                Tile tile = new WalkableTile(-1, -1)
-                {
-                    Piece = piece.Value,
-                    BackColor = player.Color
-                };
-
-                tile.Click += OnTileClick;
+                Tile tile = new Tile(piece.Value, new System.Drawing.Point(0, (int)piece.Key));
 
                 Add(piece.Key, tile);
             }

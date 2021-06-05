@@ -1,5 +1,4 @@
 ﻿using Stratego.Model;
-using Stratego.Model.Panels;
 using Stratego.Sockets.Network;
 using Stratego.Utils;
 using System;

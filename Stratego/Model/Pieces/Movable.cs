@@ -4,6 +4,7 @@ namespace Stratego
 {
     public class Movable : Model.Piece
     {
+        public Movable() { }
         public Movable(Type type, Player player) : base(type, player) { }
 
         public override bool IsPossible(Move move)

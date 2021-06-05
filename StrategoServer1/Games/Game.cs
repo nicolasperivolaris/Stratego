@@ -12,7 +12,7 @@ namespace StrategoServer.Games
         public string Name {get; set;}
         public readonly int MaxPlayer;
         public List<Player> Players {get; set;}
-        public Tile[] Grid { get; set; }
+        public ViewTile[] Grid { get; set; }
 
         public Game(int maxPlayer, String name)
         {

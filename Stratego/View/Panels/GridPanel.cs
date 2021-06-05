@@ -1,5 +1,7 @@
 ﻿using Stratego.Model;
-using Stratego.Model.Panels;
+using Stratego.Model.Tiles;
+using Stratego.Utils;
+using Stratego.View.Tiles;
 using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
@@ -7,99 +9,83 @@ using System.Xml;
 
 namespace Stratego.View
 {
-    public class GridPanel : Grid
+    public class GridPanel : ViewGrid
     {
-        public Dictionary<int, Player> Players { get; }
-        public GridPanel(EventHandler tileClickListener, Dictionary<int, Player> players) : base(tileClickListener)
+        public Player[] Players { get; }
+        public Grid Grid { get; set; }
+
+        private Move CurrentMove = new Move();
+
+        public GridPanel() { }
+
+        public GridPanel(Player[] players, Grid grid) : base()
         {
             Players = players;
+            Grid = grid;
             SetStyle(ControlStyles.AllPaintingInWmPaint |
              ControlStyles.OptimizedDoubleBuffer |
              ControlStyles.UserPaint, true);
             Selectable = true;
-        }
 
-        #region Creation
-        public void CreateMap(string pattern)
-        {
+            int sideLength = (int)Math.Sqrt(grid.TileGrid.Length);
+            ColumnCount = sideLength;
+            RowCount = sideLength;
 
-            XmlDocument doc = new XmlDocument();
-            doc.LoadXml(pattern);
-            XmlNode map = doc.DocumentElement;
-
-            ColumnCount = Int32.Parse(map.Attributes["columns"].Value);
-            RowCount = Int32.Parse(map.Attributes["rows"].Value);
-
-            Populate(map);
-        }
-
-        private void Populate(XmlNode map)
-        {
-            foreach (XmlNode row in map.ChildNodes)
+            RowStyles.Clear();
+            ColumnStyles.Clear();
+            Controls.Clear();
+            for (int i = 0; i < sideLength; i++)
             {
-                if (row.Name != "row") continue;
-
-                int i = Int32.Parse(row.Attributes["i"].Value);
-                ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F / ColumnCount));
-
-                foreach (XmlNode cell in row.ChildNodes)
-                {
-                    int j = Int32.Parse(cell.Attributes["j"].Value);
-                    this.RowStyles.Add(new RowStyle(SizeType.Percent, 40F / RowCount));
-                    int owner = row.Attributes["owner"] != null ? Convert.ToInt32(row.Attributes["owner"].Value) : -1;
-                    Tile tile = GetNewTile(cell, i, j, owner);
-                    var piece = cell.Attributes["piece"];
-                    this.Controls.Add(tile, j, i);
-                }
+                RowStyles.Add(new RowStyle(SizeType.Percent, 100/RowCount));
+                ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100 / ColumnCount));
             }
+
+            foreach (var tile in grid.TileGrid)
+            {
+                Add(GetNewGridTile(tile));
+            }
+
+            RowStyles.Add(new RowStyle(SizeType.Absolute, 0));
+            Controls.Add(new Label());
         }
 
-        private Tile GetNewTile(XmlNode cell, int row, int column, int owner)
+
+        private ViewTile GetNewGridTile(Tile tile)
         {
-            Tile result;
-            if (cell.Attributes["accessible"].Value.Equals("true", StringComparison.InvariantCultureIgnoreCase))
+            ViewTile result;
+            if (tile.Accessible)
             {
-                result = new WalkableTile(row, column);
+                result = new ViewWalkableTile();
                 result.ShowQuantity(false);
-                if (owner >= 0)
-                    ((WalkableTile)result).Owner = Players[owner];
-                result.Click += OnClick;
             }
             else
-                result = new HoleTile(row, column);
+                result = new ViewHoleTile();
 
+            result.Tile = tile;
             return result;
         }
-        #endregion
 
-        private void OnClick(object sender, EventArgs e)
+
+        protected override void OnTileClick(object sender, TileEventArgs e)
         {
-            bool? moved = Selected?.Piece?.Move(Selected, (Tile)sender);
-
-            ActionEventArgs click;
-
-            if (moved == true)
+            Tile clicked = ((ViewTile)e.Object).Tile;
+            if (CurrentMove.From == null)
             {
-                Move move = new Move() { From = Selected, To = (Tile)sender };
-                click = new ActionEventArgs()
-                {
-                    ActionType = ActionType.Move,
-                    Object = move,
-                    Sender = this
-                };
+                if(!clicked.IsEmpty()) CurrentMove.From = clicked;
             }
             else
             {
-                click = new ActionEventArgs()
+                CurrentMove.To = clicked;
+                e.ActionType = ActionType.Move;
+                e.Object = CurrentMove;
+
+                CurrentMove = new Move()
                 {
-                    ActionType = ActionType.TileClick,
-                    Object = (Tile)sender,
-                    Sender = this
+                    From = clicked
                 };
             }
-            OnTileClick(this, click);
+
+
         }
-
-
     }
 }

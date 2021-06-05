@@ -1,7 +1,7 @@
 ﻿using Stratego.Model;
-using Stratego.Model.Panels;
 using Stratego.Network;
 using Stratego.Sockets.Network;
+using Stratego.Utils;
 using StrategoServer.Games;
 using StrategoServer1;
 using System;

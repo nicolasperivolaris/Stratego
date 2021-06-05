@@ -1,77 +1,50 @@
-﻿using Stratego.Network;
-using Stratego.Model;
-using Stratego.Model.Panels;
-using Stratego.Utils;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Drawing;
-using System.Net;
 using System.Windows.Forms;
+using Stratego.Model;
+using Stratego.Model.Tiles;
 using Stratego.Sockets.Network;
+using Stratego.Utils;
+using Stratego.View.Tiles;
 
 namespace Stratego.View
 {
     public partial class Map : Form
     {
-        private enum Mode
-        {
-            Normal, Editor, Run, 
-            PlayerAwaiting, Server, Client
-        }
+        private readonly Player[] Players;
+        public GridPanel Grid { get; }
+        public DekPanel DekPanel { get; }
 
-        private NetworkController NetworkController;
-        private GridPanel Grid
-        {
-            get; set;
-        }
-        private DekPanel DekPanel
-        {
-            get; set;
-        }
-        public Dictionary<int, Player> Players
-        {
-            get; private set;
-        }
 
-        public int PlayerAmount { get; private set; }
+        public event EventHandler EditorModeChange;
+        public event EventHandler WaitForPlayerChange;
+        public event EventHandler<StringEventArgs> JointDialogSucceed;
+        public event EventHandler<TileEventArgs> TileClicked;
 
-        private Mode _statusMode;
-        private Mode _multiMode;
 
-        public Map(Player[] Tab)
+        public Map(Player[] players, Grid grid)
         {
-            Players = new Dictionary<int, Player>();
             InitializeComponent();
-            foreach (Player player in Tab)
-            {
-                if(player != null)Players.Add(player.Number, player);
-            }
-            Grid = new GridPanel(OnTileClick, Players)
+            Players = players;
+            Grid = new GridPanel(players, grid)
             {
                 Dock = DockStyle.Fill,
                 Name = "grid"
             };
-            Grid.CreateMap(Properties.Resources.pattern2);
-            PlayerAmount = 2;
-
-            DekPanel = new DekPanel(OnTileClick)
+            Grid.TileClicked += OnGridTileClicked;
+            DekPanel = new DekPanel()
             {
                 Dock = DockStyle.Fill,
                 Name = "dekPanel"
             };
+            DekPanel.TileClicked += OnDekTileClicked;
+
 
             Controls.Find("content", false)[0].Controls.Add(Grid);
             Controls.Find("content", false)[0].Controls.Add(DekPanel);
-
-            _multiMode = _statusMode = Mode.Normal;
-
-            foreach (Player player in Players.Values)
-            {
-                AddPlayerPieces(player);
-            }
         }
 
-        private void OnChatMessage(object sender, StringEventArgs msg)
+        public void OnChatMessage(object sender, StringEventArgs msg)
         {
             chatBox.Control.BeginInvoke((MethodInvoker)delegate ()
             {
@@ -79,59 +52,26 @@ namespace Stratego.View
             });
         }
 
-        private void OnTileClick(object sender, EventArgs e)
+        private void OnGridTileClicked(object sender, TileEventArgs e)
         {
-            ActionEventArgs actionEvent = (ActionEventArgs)e;
-            if (sender == DekPanel) Grid.Selected = null;
-            switch (_statusMode)
+            if(e.ActionType == ActionType.TileClick
+                && DekPanel.SelectedTile != null
+                && Grid.SelectedTile is ViewWalkableTile selected) 
             {
-                case Mode.Normal:
-                    if (actionEvent.ActionType == ActionType.Move)
-                    {
-                        OnMove(actionEvent);
-                    }
-                    break;
-                case Mode.Editor:
-                    if (sender == Grid
-                    && DekPanel.Selected != null
-                    && Grid.Selected is WalkableTile selected
-                    && selected.Owner == DekPanel.Selected.Piece.Player)
-                    {
-                        SetOnGrid(DekPanel.Selected.Piece, Grid.Selected);
-                        Grid.Selected = null;
-                    }
-                    break;
-                case Mode.Run:
-                    break;
-                case Mode.PlayerAwaiting:
-                    break;
-                default:
-                    break;
+                e.ActionType = ActionType.FromDekToGrid;
+                e.Object = new Move()
+                {
+                    From = DekPanel.SelectedTile.Tile,
+                    To = Grid.SelectedTile.Tile
+                };
+                Grid.ResetSelection();
             }
-        }
-        private void AddPlayerPieces(Player player)
-        {
-            DekPanel.AddPlayer(player);
+            TileClicked(sender, e);
         }
 
-        // Important events for other players
-        #region actions
-
-        private void SetOnGrid(Piece piece, Tile endTile)
+        private void OnDekTileClicked(object sender, TileEventArgs e)
         {
-            if (endTile.Piece != null) endTile.Piece.ToFactory();
-            endTile.Piece = piece.Player.PieceFactory.CountedInstanceOf(piece.Type);
-        }
 
-        private void OnMove(ActionEventArgs e)
-        {
-            ActionSerializer actionSerializer = new ActionSerializer()
-            {
-                ActionType = e.ActionType,
-                Move = (Move)e.Object,
-                Player = Players[Program.PLAYER]
-            };
-            NetworkController.Send(actionSerializer);
         }
 
         private void OnStart()
@@ -139,49 +79,15 @@ namespace Stratego.View
             //Todo start
         }
 
-        private void EditorModeClick(object sender, EventArgs e)
+        private void PlayerPropertiesToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ToolStripMenuItem editor = ((ToolStripMenuItem)sender);
-            if (_statusMode == Mode.Editor)
-            {
-                _statusMode = Mode.Normal;
-                Grid.BackColor = GridPanel.DefaultBackColor;
-                foreach (Control control in Grid.Controls)
-                {
-                    if (control is WalkableTile tile && tile.Owner == Players[Program.PLAYER])
-                        control.BackColor = Color.Yellow;
-                }
-                DekPanel.Selectable = false;
-            }
-            else if (_statusMode == Mode.Normal)
-            {
-                _statusMode = Mode.Editor;
-                Grid.BackColor = Color.LightGreen;
-                foreach (Control control in Grid.Controls)
-                {
-                    if (control is WalkableTile tile 
-                        && tile.Owner == Players[Program.PLAYER])
-                        control.BackColor = Color.Green;
-                }
-
-                DekPanel.Selectable = true;
-            }
-
-            editor.Checked = !editor.Checked;
+            PlayerDialog dia = new PlayerDialog(Players[Program.PLAYER]);
+            dia.ShowDialog(this);
         }
 
-        #endregion
-        private void WaitForPlayersToolStripMenuItem_Click(object sender, EventArgs e)
+        public void SetPlayersAwaiting(bool await)
         {
-            if (_multiMode == Mode.PlayerAwaiting)
-            {
-                menuStrip1.Items.Remove(toolStripProgressBar);
-                toolStripProgressBar.Dispose();
-                NetworkController.StopWaiting();
-                ((ToolStripMenuItem)sender).Text = "Wait for player";
-                _multiMode = Mode.Normal;
-            }
-            else
+            if (await)
             {
                 toolStripProgressBar = new ToolStripProgressBar
                 {
@@ -191,15 +97,63 @@ namespace Stratego.View
                     Dock = DockStyle.Left
                 };
                 menuStrip1.Items.Add(toolStripProgressBar);
-
-                NetworkController.StartAsServer();
-                NetworkController.Message += OnChatMessage;
-
-                _multiMode = Mode.PlayerAwaiting;
-                ((ToolStripMenuItem)sender).Text = "Stop waiting";
+            }
+            else
+            {
+                menuStrip1.Items.Remove(toolStripProgressBar);
+                toolStripProgressBar.Dispose();
             }
         }
 
+        private void EditorModeClick(object sender, EventArgs e)
+        {
+            ToolStripMenuItem editor = ((ToolStripMenuItem)sender);
+            if (editor.Checked)
+            {
+                Grid.BackColor = GridPanel.DefaultBackColor;
+                foreach (Control control in Grid.Controls)
+                {
+                    if (control is ViewWalkableTile tile)
+                        tile.SetOwnerColor(false);
+                }
+            }
+            else
+            {
+                Grid.BackColor = Color.LightGreen;
+                foreach (Control control in Grid.Controls)
+                {
+                    if (control is ViewWalkableTile tile)
+                        tile.SetOwnerColor(false);
+                }
+            }
+
+            editor.Checked = !editor.Checked;
+            EditorModeChange(sender, e);
+        }
+
+        internal void SetModeEditor(bool activated)
+        {
+            foreach (Control tile in Grid.Controls)
+            {
+                if (tile is ViewWalkableTile walkTile) walkTile.SetOwnerColor(activated);
+            }
+        }
+
+        private void WaitForPlayersToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var item = ((ToolStripMenuItem)sender);
+            if (item.Checked)
+            {
+                item.Text = "Wait for player";
+            }
+            else
+            {
+                item.Text = "Stop waiting";
+            }
+
+            item.Checked = !item.Checked;
+            WaitForPlayerChange(sender, e);
+        }
 
         private void JointToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -207,57 +161,9 @@ namespace Stratego.View
 
             // Show testDialog as a modal dialog and determine if DialogResult = OK.
             if (connectDialog.ShowDialog(this) == DialogResult.OK)
-            {
-                IPAddress address;
-                try
-                {
-                    address = IPAddress.Parse(connectDialog.Controls["addressBox"].Text);
-                }
-                catch
-                {
-                    address = IPAddress.Loopback; //default : (debug only)
-                }
-                NetworkController = new NetworkController();
-                NetworkController.StartAsClient(address, Players[Program.PLAYER]);
-                NetworkController.PlayerConnection += OnPlayerConnection;
-                NetworkController.Message += OnChatMessage;
-                NetworkController.Action += OnPartnerAction;
-            }
+                JointDialogSucceed(sender, new StringEventArgs(connectDialog.Controls["addressBox"].Text));
 
             connectDialog.Dispose();
-        }
-
-        private void OnPlayerConnection(object sender, PlayerEventArgs e)
-        {
-            Player p = new Player
-            {
-                Color = e.Player.Color,
-                Number = e.Player.Number
-            };
-
-            Players.Add(Program.ENEMI, p);
-            AddPlayerPieces(p);
-        }
-
-        private void OnPartnerAction(object sender, ActionEventArgs action)
-        {
-            if (_statusMode == Mode.Editor)
-            {
-                Player player = (Player) sender;
-                Model.Type pieceType = (Model.Type)((Move)action.Object).From.Coordinate.Y;
-                Piece piece = player.PieceFactory.CountedInstanceOf(pieceType);
-                SetOnGrid(piece, (Tile)Grid.GetChildAtPoint(((Move)action.Object).To.Coordinate));
-                if (piece != null)
-                    DekPanel.UpdateDekWith(piece);
-
-                DekPanel.Selected.Focus();
-            }
-        }
-
-        private void PlayerPropertiesToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            PlayerDialog dia = new PlayerDialog(Players[Program.PLAYER]);
-            dia.ShowDialog(this);
         }
     }
 }
