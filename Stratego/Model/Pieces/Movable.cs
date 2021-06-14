@@ -9,7 +9,7 @@ namespace Stratego
 
         public override bool IsPossible(Move move)
         {
-            if (move.Lenght() == 1)
+            if (move.Lenght() == 1 && IsFree(move.To))
                 return true;
             else return false;
 

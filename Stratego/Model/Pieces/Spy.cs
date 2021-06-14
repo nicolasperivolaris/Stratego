@@ -19,7 +19,7 @@
             int x = move.From.Coordinate.X - move.To.Coordinate.X;
             int y = move.From.Coordinate.Y - move.To.Coordinate.Y;
 
-            return (x == 0 || y == 0);
+            return (x == 0 || y == 0) && IsFree(move.To);
         }
     }
 }

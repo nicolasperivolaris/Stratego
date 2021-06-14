@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Net.Sockets;
 using System.Windows.Threading;
 
 namespace StrategoServer.Server
@@ -39,14 +40,14 @@ namespace StrategoServer.Server
 
         private void TransmitToOtherPlayers(Player exception, object o)
         {
-            Game game = Games.Single(g => g.Players.Contains(exception));
+            Game game = Games.Where(g => g.Players.Contains(exception)).Single();
             List<Player> otherPlayers = game.Players.Where(p => !p.Equals(exception)).ToList();
             NetworkController.SendTo(otherPlayers, o);
         }
 
         private void OnAction(object sender, ActionSerializer e)
         {
-            TransmitToOtherPlayers(e.Player, e);
+            TransmitToOtherPlayers((Player)sender, e);
         }
 
         private void OnPlayerLeave(object sender, PlayerEventArgs e)
@@ -61,14 +62,16 @@ namespace StrategoServer.Server
             Game game = Games.FirstOrDefault(g=>!g.IsFull());
             if (game == null) //all the games are full
             {
-                game = new Game(2, "Game" + (Games.Count - 1));
-                View.Dispatcher.BeginInvoke((Action)delegate ()
+                game = new Game(2, "Game" + (Games.Count));
+                View.Dispatcher.Invoke((Action)delegate ()
                 {
                     Games.Add(game);
                 });
             }
 
             View.Dispatcher.Invoke(delegate { game.Add(e.Player); });
+
+
             TransmitToOtherPlayers(e.Player, e.Player); //introduce the new player to the other
             foreach (Player player in game.Players)
             {

@@ -21,8 +21,9 @@ namespace Stratego.Utils
     {
         private enum Mode
         {
-            Normal, Editor, Run,
-            PlayerAwaiting, Server, Client
+            Normal, Editor, Run, WaitTurn,
+            StartAwaiting, OtherPlayerWaitForStart,
+
         }
 
         private readonly NetworkController NetworkController;
@@ -48,17 +49,30 @@ namespace Stratego.Utils
 
             Map = new Map(tab, Grid);
             Map.EditorModeChange += EditorMode;
-            Map.WaitForPlayerChange += WaitForPlayer;
             Map.JointDialogSucceed += JointPartner;
-            Map.TileClicked += OnTileClick;
+            Map.Grid.TileClicked += OnTileClick;
+            Map.DekPanel.TileClicked += OnTileClick;
             Map.MovedPiece += OnMove;
             Map.MessageSent += OnMessageSent;
+            Map.StartButton += TryStart;
             Map.Grid.Selectable = false;
-            Map.Grid.Error = "Connect to server first";
 
-            Map.DekPanel.AddPlayer(Players[Program.PLAYER]);
+            Map.DekPanel.AddPlayer(GetPlayer());
 
-            NetworkController = new NetworkController();
+            NetworkController = new NetworkController(Players);
+        }
+
+        private void TryStart(object sender, EventArgs e)
+        {
+            ActionSerializer action = new ActionSerializer
+            {
+                ActionType = ActionType.StartRequired
+            };
+            NetworkController.Send(action);
+            if (_multiMode != Mode.OtherPlayerWaitForStart)
+                _statusMode = Mode.StartAwaiting;
+            else
+                StartBattle();
         }
 
         private void OnMessageSent(object sender, StringEventArgs e)
@@ -69,6 +83,17 @@ namespace Stratego.Utils
         public void Start()
         {
             Application.Run(Map);
+        }
+
+        private void StartBattle()
+        {
+            if(_statusMode == Mode.Editor)
+            {
+                SetEditorMode(false);
+            }
+
+            Map.OnMessageReceived(GetEnemy(), new StringEventArgs("Open the fire !"));
+            _statusMode = Mode.Run;
         }
 
         private void AddPlayerPieces(Player player)
@@ -84,16 +109,26 @@ namespace Stratego.Utils
 
         private void OnTileClick(object sender, TileEventArgs actionEvent)
         {
+            if (NetworkController.IsDisconnected())
+            {
+                Map.ShowConnectionError();
+                Map.ShowConnectionDialog(this, EventArgs.Empty);
+            }
+            if (GetEnemy().Socket == null)
+                MessageBox.Show("Wait for another player", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
             if (sender == Map.DekPanel) Map.Grid.ResetSelection();
             switch (_statusMode)
             {
                 case Mode.Normal:
+                    MessageBox.Show("Place your pieces by clicking \"Set up army\" or select start", "Advice", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     break;
                 case Mode.Editor:
                     break;
                 case Mode.Run:
                     break;
-                case Mode.PlayerAwaiting:
+                case Mode.StartAwaiting:
+                    MessageBox.Show("Wait for the start of the game.", "Advice", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     break;
                 default:
                     break;
@@ -105,23 +140,22 @@ namespace Stratego.Utils
             Move originalMove = (Move)actionEvent.Action.Clone(); //keep copy before changing the grid
             switch (_statusMode)
             {
-                case Mode.Normal:
-                    if (actionEvent.ActionType == ActionType.Move)
+                case Mode.Run:
+                    if (actionEvent.ActionType == ActionType.Move
+                        && actionEvent.Action.From.Piece.Player == GetPlayer())
                     {
                         validAction = MovePiece(actionEvent.Action);
+                        if (validAction && Grid.Get(actionEvent.Action.To.Coordinate).Piece.Player.Equals(GetPlayer())) //unhide if the tile was hiden
+                            Map.Grid.GetViewTile(actionEvent.Action.To.Coordinate).HideContent(false);
                     }
                     break;
                 case Mode.Editor:
                     if (sender == Map.Grid
                         && actionEvent.ActionType == ActionType.FromDekToGrid
-                        && (actionEvent.Action).From.Piece.Player == Players[Program.PLAYER])
+                        && (actionEvent.Action).From.Piece.Player == GetPlayer())
                     {
                         validAction = SetOnGrid(actionEvent.Action);
                     }
-                    break;
-                case Mode.Run:
-                    break;
-                case Mode.PlayerAwaiting:
                     break;
                 default:
                     break;
@@ -133,13 +167,18 @@ namespace Stratego.Utils
             }
         }
 
+        private Player GetPlayer()
+        {
+            return Players[Program.PLAYER];
+        }
+
         private void SendToPartner(MoveEventArgs move)
         {
             ActionSerializer actionSerializer = new ActionSerializer()
             {
                 ActionType = move.ActionType,
                 Move = move.Action,
-                Player = Players[Program.PLAYER]
+                Player = GetPlayer()
             };
             SendToPartner(actionSerializer);
         }
@@ -152,8 +191,20 @@ namespace Stratego.Utils
         private bool SetOnGrid(Move move)
         {
             if (move.To.Piece != null) move.To.Piece.ToFactory();
-            move.To.Piece = move.From.Piece.Player.PieceFactory.CountedInstanceOf(move.From.Piece.Type);
+            if(move.To.Owner.Equals(move.From.Piece.Player))
+                move.To.Piece = move.From.Piece.Player.PieceFactory.CountedInstanceOf(move.From.Piece.Type);
             return move.To.Piece != null;
+        }
+
+        private void HideEnemyZone(bool activate)
+        {
+            foreach (Control c in Map.Grid.Controls)
+            {
+                if (c is ViewWalkableTile tile && tile.Tile.Owner == GetEnemy()) {
+                    if (activate) tile.HideContent(true);
+                    else if (tile.Tile.Piece == null || tile.Tile.Piece.Player != GetEnemy()) tile.HideContent(false);//unhide all except enemy pieces
+                }
+            }
         }
 
         private bool MovePiece(Move move)
@@ -173,11 +224,13 @@ namespace Stratego.Utils
             {
                 _statusMode = Mode.Editor;
                 Map.SetModeEditor(true);
+                HideEnemyZone(true);
             }
             else
             {
                 _statusMode = Mode.Normal;
                 Map.SetModeEditor(false);
+                HideEnemyZone(false);
             }
         }
 
@@ -186,36 +239,26 @@ namespace Stratego.Utils
         #region buttons
         private void EditorMode(object sender, EventArgs e)
         {
+            if (NetworkController.IsDisconnected())
+            {
+                Map.ShowConnectionError();
+            }
+
             if (_statusMode == Mode.Editor || _statusMode == Mode.Normal)
             {
                 SetEditorMode(_statusMode == Mode.Normal);//If normal => editor
                 SendToPartner(new ActionSerializer()
                 {
                     ActionType = _statusMode == Mode.Editor ? ActionType.EditorMode : ActionType.NormalMode,
-                    Player = Players[Program.PLAYER]
+                    Player = GetPlayer()
                 });
-            }
-        }
-
-        private void WaitForPlayer(object sender, EventArgs e)
-        {
-            if (_multiMode == Mode.PlayerAwaiting)
-            {
-                NetworkController.StopWaiting();
-                _multiMode = Mode.Normal;
-            }
-            else
-            {
-                NetworkController.StartAsServer();
-                NetworkController.Message += Map.OnMessageReceived;
-                _multiMode = Mode.PlayerAwaiting;
             }
         }
 
 
         private void JointPartner(object sender, StringEventArgs e)
         {
-            if (NetworkController.Connected)
+            if (NetworkController.IsConnected())
             {
                 MessageBox.Show("Already connected", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
@@ -231,13 +274,14 @@ namespace Stratego.Utils
             }
             try
             {
-                NetworkController.StartAsClient(address, Players[Program.PLAYER]);
+                NetworkController.StartAsClient(address, GetPlayer());
                 Map.Grid.Selectable = true;
             }
             catch (SocketException)
             {
                 ErrorDialog dialog = new ErrorDialog();
                 dialog.ShowDialog();
+                Map.ShowConnectionDialog(this, EventArgs.Empty);
             }
             NetworkController.PlayerConnection += OnPlayerConnection;
             NetworkController.Message += Map.OnMessageReceived;
@@ -254,7 +298,7 @@ namespace Stratego.Utils
 
         private void OnPlayerNumberReceived(object sender, StringEventArgs e)
         {
-            Players[Program.PLAYER].Number = Int32.Parse(e.Data);
+            GetPlayer().Number = Int32.Parse(e.Data);
         }
 
         #endregion
@@ -264,26 +308,19 @@ namespace Stratego.Utils
         }
         private void OnPlayerConnection(object sender, PlayerEventArgs e)
         {
-            Players[Program.ENEMY].Number = e.Player.Number;
-            Players[Program.ENEMY].Name = e.Player.Name;
-            AddPlayerPieces(Players[Program.ENEMY]);
+            GetEnemy().Number = e.Player.Number;
+            GetEnemy().Name = e.Player.Name;
+            AddPlayerPieces(GetEnemy());
         }
-        /*
-        private void OnPartnerMove()
-        {
-            Player player = (Player)sender;
-            Model.Type pieceType = (Model.Type)action.Move.From.Coordinate.Y;
-            Piece piece = player.PieceFactory.CountedInstanceOf(pieceType);
-            if (from.Piece != null) from.Piece.ToFactory();
-            from.Piece = from.Piece.Player.PieceFactory.CountedInstanceOf(from.Piece.Type);
-            if (piece != null)
-                Map.DekPanel.OnAmountChanged(this, piece);
 
-            Map.DekPanel.SelectedTile.Focus();
-        }*/
+        private Player GetEnemy()
+        {
+            return Players[Program.ENEMY];
+        }
 
         private void OnPartnerAction(object sender, ActionSerializer action)
         {
+            Player partner = (Player)sender;
             switch (action.ActionType)
             {
                 case ActionType.NormalMode:
@@ -292,7 +329,16 @@ namespace Stratego.Utils
                 case ActionType.EditorMode:
                     SetEditorMode(true);
                     break;
-                case ActionType.WaitForPlayer:
+                case ActionType.StartRequired:
+                    if(_statusMode != Mode.StartAwaiting)
+                    {
+                        _multiMode = Mode.OtherPlayerWaitForStart;
+                        Map.OnMessageReceived(sender, new StringEventArgs("Want to start..."));
+                    }
+                    else
+                    {
+                        StartBattle();
+                    }
                     break;
                 case ActionType.TileClick:
                     break;
@@ -304,6 +350,15 @@ namespace Stratego.Utils
                 case ActionType.FromGridToDek:
                     break;
                 case ActionType.Move:
+                    Move move = new Move
+                    {
+                        From = GetGridTile(action.Player, action.Move.From.Coordinate),
+                        To = GetGridTile(action.Player, action.Move.To.Coordinate)
+                    };
+                    Map.Grid.GetViewTile(move.From.Coordinate).HideContent(false);
+                    MovePiece(move); 
+                    if(Grid.Get(move.To.Coordinate).Piece.Player != GetPlayer())
+                        Map.Grid.GetViewTile(move.To.Coordinate).HideContent(true);
                     break;
                 default:
                     break;
@@ -312,7 +367,7 @@ namespace Stratego.Utils
 
         private Tile GetGridTile(Player partner, Point coord)
         {
-            if (partner.Equals(Players[Program.ENEMY])) // adapt for all enemies
+            if (partner.Equals(GetEnemy())) // adapt for all enemies
             {
                 int X = Grid.XSize -1 - coord.X;
                 int Y = Grid.YSize -1 - coord.Y;

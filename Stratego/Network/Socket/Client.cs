@@ -34,6 +34,8 @@ namespace Stratego.Sockets.Network
                 // Complete the connection.  
                 client.EndConnect(ar);
 
+                Connected = true;
+
                 Console.WriteLine("Client connected to {0}",
                     client.RemoteEndPoint.ToString());
 
@@ -50,6 +52,7 @@ namespace Stratego.Sockets.Network
             }
             catch (Exception e)
             {
+                Connected = false;
                 Console.WriteLine(e.ToString());
             }
         }

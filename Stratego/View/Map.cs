@@ -17,11 +17,11 @@ namespace Stratego.View
 
 
         public event EventHandler EditorModeChange;
-        public event EventHandler WaitForPlayerChange;
         public event EventHandler<StringEventArgs> JointDialogSucceed;
-        public event EventHandler<TileEventArgs> TileClicked;
         public event EventHandler<MoveEventArgs> MovedPiece;
         public event EventHandler<StringEventArgs> MessageSent;
+        public event EventHandler StartButton;
+
 
         public Map(Player[] players, Grid grid)
         {
@@ -39,8 +39,6 @@ namespace Stratego.View
                 Dock = DockStyle.Fill,
                 Name = "dekPanel"
             };
-            DekPanel.TileClicked += TileClicked;
-
 
             Controls.Find("content", false)[0].Controls.Add(Grid);
             Controls.Find("content", false)[0].Controls.Add(DekPanel);
@@ -78,15 +76,15 @@ namespace Stratego.View
             }
         }
 
-        private void OnStart()
-        {
-            //Todo start
-        }
-
         private void PlayerPropertiesToolStripMenuItem_Click(object sender, EventArgs e)
         {
             PlayerDialog dia = new PlayerDialog(Players[Program.PLAYER]);
             dia.ShowDialog(this);
+            foreach (Control c in DekPanel.Controls)
+            {
+                if (c is ViewTile tile)
+                    tile.UpdateView();
+            }
         }
 
         public void SetPlayersAwaiting(bool await)
@@ -113,7 +111,7 @@ namespace Stratego.View
         {
             ToolStripMenuItem editor = ((ToolStripMenuItem)sender);
             editor.Checked = !editor.Checked;
-            EditorModeChange(sender, e);
+            EditorModeChange?.Invoke(sender, e);
         }
 
         internal void SetModeEditor(bool activated)
@@ -125,33 +123,6 @@ namespace Stratego.View
             Grid.BackColor = activated ? Color.LightGreen : Grid.BackColor = GridPanel.DefaultBackColor;
             DekPanel.Selectable = activated;
             Grid.PiecesCanMove = !activated;
-        }
-
-        private void WaitForPlayersToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            var item = ((ToolStripMenuItem)sender);
-            if (item.Checked)
-            {
-                item.Text = "Wait for player";
-            }
-            else
-            {
-                item.Text = "Stop waiting";
-            }
-
-            item.Checked = !item.Checked;
-            WaitForPlayerChange(sender, e);
-        }
-
-        private void JointToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            ConnectDialog connectDialog = new ConnectDialog();
-
-            // Show testDialog as a modal dialog and determine if DialogResult = OK.
-            if (connectDialog.ShowDialog(this) == DialogResult.OK)
-                JointDialogSucceed(sender, new StringEventArgs(connectDialog.Controls["addressBox"].Text));
-
-            connectDialog.Dispose();
         }
 
         private void ChatBox_KeyPress(object sender, KeyPressEventArgs e)
@@ -166,6 +137,31 @@ namespace Stratego.View
         private void ChatBox_Enter(object sender, EventArgs e)
         {
             chatBox.Clear();
+        }
+
+        public void ShowConnectionDialog(object sender, EventArgs e)
+        {
+            ConnectDialog connectDialog = new ConnectDialog();
+
+            // Show testDialog as a modal dialog and determine if DialogResult = OK.
+            if (connectDialog.ShowDialog(this) == DialogResult.OK)
+                JointDialogSucceed?.Invoke(this, new StringEventArgs(connectDialog.Controls["addressBox"].Text));
+            else
+            {
+                MessageBox.Show("You must be connected to a server to play", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                connectDialog.ShowDialog();
+            }
+            connectDialog.Dispose();
+        }
+
+        public void ShowConnectionError()
+        {
+            MessageBox.Show("You must be connected");
+        }
+
+        private void startToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            StartButton.Invoke(this, EventArgs.Empty);
         }
     }
 }

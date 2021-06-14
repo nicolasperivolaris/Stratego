@@ -19,6 +19,13 @@ namespace Stratego.Sockets.Network
 
         public Socket ListeningSocket { get; set; }
 
+        public bool Connected { get; set; }
+
+        public NetworkManager()
+        {
+            Connected = false;
+        }
+
         public abstract void Connect();
 
         public abstract void Send(String msg);
@@ -74,6 +81,7 @@ namespace Stratego.Sockets.Network
             catch(SocketException)
             {
                 PartnerQuit?.Invoke(this, new IPAddressEventArgs(state.address));
+                Connected = false;
                 return;
             }
         }

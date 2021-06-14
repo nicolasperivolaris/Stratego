@@ -14,7 +14,6 @@ namespace Stratego.Network
     public class NetworkController
     {
         public List<Player> Players { get; private set; }
-        public bool Connected { get; private set; }
 
         private NetworkManager NetworkManager;
         //private Dispatcher Dispatcher;
@@ -30,6 +29,11 @@ namespace Stratego.Network
         public NetworkController()
         {
             Players = new List<Player>();
+        }
+
+        public NetworkController(Player[] players)
+        {
+            Players = players.ToList();
         }
 
         /// <summary>
@@ -112,7 +116,15 @@ namespace Stratego.Network
             NetworkManager.DataReceived += OnDataReceived;
             NetworkManager.PartnerQuit += OnPartnerQuit;
             NetworkManager.PartnerArrival += OnPartnerArrival;
-            Connected = true;
+        }
+
+        public bool IsConnected() 
+        {
+            return NetworkManager == null ? false : NetworkManager.Connected;
+        }
+        public bool IsDisconnected()
+        {
+            return !NetworkManager.Connected;
         }
 
         private void OnPartnerArrival(object sender, IPAddressEventArgs e)
@@ -148,12 +160,17 @@ namespace Stratego.Network
                     {
                         player = TryDeserialize<Player>(o);
                         player.Socket = socket;
-                        if (NetworkManager is Server)
+                        if (NetworkManager is Server && !Players.Contains(player))
                         {
+                            Players.Add(player);
                             player.Number = Players.Count;
                             NetworkManager.SendTo((int)Flag.PlayerNumber + "" +player.Number, player.Socket);
+                        }else if(NetworkManager is Client)
+                        {
+                            Players[Program.ENEMY].Name = player.Name;
+                            Players[Program.ENEMY].Socket = player.Socket;
+                            Players[Program.ENEMY].Number = player.Number;
                         }
-                        if (!Players.Contains(player))Players.Add(player);
                         PlayerConnection?.Invoke(player, new PlayerEventArgs(player));
                         break; 
                     }
@@ -167,7 +184,9 @@ namespace Stratego.Network
                         break;
                     }
                 case Flag.Action:
-                    Action?.Invoke(player, TryDeserialize<ActionSerializer>(o));
+                    ActionSerializer action = TryDeserialize<ActionSerializer>(o);
+                    action.Player = player;
+                    Action?.Invoke(player, action);
                     break;
                 case Flag.Quit: PlayerLeave?.Invoke(player, new PlayerEventArgs(player));
                     break;

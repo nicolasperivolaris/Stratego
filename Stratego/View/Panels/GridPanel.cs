@@ -3,6 +3,7 @@ using Stratego.Model.Tiles;
 using Stratego.Utils;
 using Stratego.View.Tiles;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using System.Xml;
@@ -52,7 +53,6 @@ namespace Stratego.View
             Controls.Add(new Label());
         }
 
-
         private ViewTile GetNewGridTile(Tile tile)
         {
             ViewTile result;
@@ -68,6 +68,15 @@ namespace Stratego.View
             return result;
         }
 
+        public ViewTile GetViewTile(Point coord)
+        {
+            foreach (Control view in Controls)
+            {
+                if (view is ViewTile viewTile && viewTile.Tile.Coordinate.Equals(coord))
+                    return viewTile;
+            }
+            return null;
+        }
 
         protected override void OnClick(object sender, TileEventArgs e)
         {

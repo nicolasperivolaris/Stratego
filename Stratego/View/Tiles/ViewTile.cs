@@ -10,11 +10,13 @@ namespace Stratego.Model
         private Label powerLl;
         private Label quantityLl;
         private Tile _tile;
+        private bool hiden;
 
         public Tile Tile
         {
             get { return _tile; }
-            set { 
+            set
+            {
                 _tile = value;
                 value.PieceChanged += OnPieceChanged;
 
@@ -36,21 +38,54 @@ namespace Stratego.Model
             });
         }
 
+        protected abstract Color GetDefaultColor();
+
+        public void SetOwnerColor(bool state)
+        {
+            if (state && (Tile.Owner != null))
+                BackColor = Tile.Owner.Color;
+            else BackColor = Tile.Piece != null ? Tile.Piece.Player.Color : Color.Yellow;
+        }
+        public void HideContent(bool activate)
+        {
+            Invoke((MethodInvoker)delegate
+            {
+                hiden = activate;
+                if (activate)
+                {
+                    powerLl.Hide();
+                    quantityLl.Hide();
+                    Text = "";
+                }
+                else
+                {
+                    if(Tile.Piece != null)
+                    {
+                        powerLl.Show();
+                        Text = Tile.Piece?.Type.ToString();
+                    }
+                }
+            });
+        }
+
         public void UpdateView()
         {
             if (Tile.Piece != null)
             {
-                Text = Tile.Piece.Type.ToString();
                 this.powerLl.Text = ((int)Tile.Piece.Type).ToString();
                 this.quantityLl.Text = (Tile.Piece.MaxAmount - Tile.Piece.Player.PieceFactory.GetCount(Tile.Piece)).ToString();
-                this.powerLl.Show();
                 BackColor = Tile.Piece.Player.Color;
+                if (!hiden)
+                {
+                    Text = Tile.Piece.Type.ToString();
+                    this.powerLl.Show();
+                }
             }
             else
             {
                 Text = "";
                 this.powerLl.Hide();
-                BackColor = Color.Yellow;
+                BackColor = GetDefaultColor();
             }
         }
 

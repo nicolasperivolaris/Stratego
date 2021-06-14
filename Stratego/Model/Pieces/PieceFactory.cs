@@ -27,7 +27,8 @@ namespace Stratego.Model.Pieces
                 case Type.espion:
                     result = new Spy(Player);
                     break;
-                case Type.bomb | Type.drapeau:
+                case Type.bomb:
+                case Type.drapeau:
                     result = new Piece(type, Player);
                     break;
 

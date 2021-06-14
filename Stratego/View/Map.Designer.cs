@@ -42,11 +42,6 @@ namespace Stratego.View
             this.mapEditorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.PlayerPropertyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.startToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.stopToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.netwerkToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.waitForPlayersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.jointToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.addressesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.chatBox = new System.Windows.Forms.ToolStripTextBox();
             this.content = new System.Windows.Forms.TableLayoutPanel();
@@ -71,7 +66,7 @@ namespace Stratego.View
             this.playersToolStripMenuItem2,
             this.customToolStripMenuItem});
             this.newToolStripMenuItem.Name = "newToolStripMenuItem";
-            this.newToolStripMenuItem.Size = new System.Drawing.Size(128, 26);
+            this.newToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
             this.newToolStripMenuItem.Text = "New";
             // 
             // playersToolStripMenuItem
@@ -101,13 +96,13 @@ namespace Stratego.View
             // openToolStripMenuItem
             // 
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(128, 26);
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
             this.openToolStripMenuItem.Text = "Open";
             // 
             // saveToolStripMenuItem
             // 
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(128, 26);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
             this.saveToolStripMenuItem.Text = "Save";
             // 
             // editToolStripMenuItem
@@ -115,8 +110,7 @@ namespace Stratego.View
             this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.mapEditorToolStripMenuItem,
             this.PlayerPropertyToolStripMenuItem,
-            this.startToolStripMenuItem,
-            this.stopToolStripMenuItem});
+            this.startToolStripMenuItem});
             this.editToolStripMenuItem.Name = "editToolStripMenuItem";
             this.editToolStripMenuItem.Size = new System.Drawing.Size(49, 27);
             this.editToolStripMenuItem.Text = "Edit";
@@ -124,58 +118,23 @@ namespace Stratego.View
             // mapEditorToolStripMenuItem
             // 
             this.mapEditorToolStripMenuItem.Name = "mapEditorToolStripMenuItem";
-            this.mapEditorToolStripMenuItem.Size = new System.Drawing.Size(203, 26);
+            this.mapEditorToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
             this.mapEditorToolStripMenuItem.Text = "Set up Army";
             this.mapEditorToolStripMenuItem.Click += new System.EventHandler(this.EditorModeClick);
             // 
             // PlayerPropertyToolStripMenuItem
             // 
             this.PlayerPropertyToolStripMenuItem.Name = "PlayerPropertyToolStripMenuItem";
-            this.PlayerPropertyToolStripMenuItem.Size = new System.Drawing.Size(203, 26);
+            this.PlayerPropertyToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
             this.PlayerPropertyToolStripMenuItem.Text = "Player Properties";
             this.PlayerPropertyToolStripMenuItem.Click += new System.EventHandler(this.PlayerPropertiesToolStripMenuItem_Click);
             // 
             // startToolStripMenuItem
             // 
             this.startToolStripMenuItem.Name = "startToolStripMenuItem";
-            this.startToolStripMenuItem.Size = new System.Drawing.Size(203, 26);
+            this.startToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
             this.startToolStripMenuItem.Text = "Start";
-            // 
-            // stopToolStripMenuItem
-            // 
-            this.stopToolStripMenuItem.Name = "stopToolStripMenuItem";
-            this.stopToolStripMenuItem.Size = new System.Drawing.Size(203, 26);
-            this.stopToolStripMenuItem.Text = "Stop";
-            // 
-            // netwerkToolStripMenuItem
-            // 
-            this.netwerkToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.waitForPlayersToolStripMenuItem,
-            this.jointToolStripMenuItem,
-            this.addressesToolStripMenuItem});
-            this.netwerkToolStripMenuItem.Name = "netwerkToolStripMenuItem";
-            this.netwerkToolStripMenuItem.Size = new System.Drawing.Size(79, 27);
-            this.netwerkToolStripMenuItem.Text = "Network";
-            // 
-            // waitForPlayersToolStripMenuItem
-            // 
-            this.waitForPlayersToolStripMenuItem.Name = "waitForPlayersToolStripMenuItem";
-            this.waitForPlayersToolStripMenuItem.Size = new System.Drawing.Size(196, 26);
-            this.waitForPlayersToolStripMenuItem.Text = "Wait for players";
-            this.waitForPlayersToolStripMenuItem.Click += new System.EventHandler(this.WaitForPlayersToolStripMenuItem_Click);
-            // 
-            // jointToolStripMenuItem
-            // 
-            this.jointToolStripMenuItem.Name = "jointToolStripMenuItem";
-            this.jointToolStripMenuItem.Size = new System.Drawing.Size(196, 26);
-            this.jointToolStripMenuItem.Text = "Joint";
-            this.jointToolStripMenuItem.Click += new System.EventHandler(this.JointToolStripMenuItem_Click);
-            // 
-            // addressesToolStripMenuItem
-            // 
-            this.addressesToolStripMenuItem.Name = "addressesToolStripMenuItem";
-            this.addressesToolStripMenuItem.Size = new System.Drawing.Size(196, 26);
-            this.addressesToolStripMenuItem.Text = "Addresses";
+            this.startToolStripMenuItem.Click += new System.EventHandler(this.startToolStripMenuItem_Click);
             // 
             // menuStrip1
             // 
@@ -183,7 +142,6 @@ namespace Stratego.View
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
             this.editToolStripMenuItem,
-            this.netwerkToolStripMenuItem,
             this.chatBox});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
@@ -229,6 +187,7 @@ namespace Stratego.View
             this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.Name = "Map";
             this.Text = "Map";
+            this.Shown += new System.EventHandler(this.ShowConnectionDialog);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.ResumeLayout(false);
@@ -246,11 +205,6 @@ namespace Stratego.View
         private System.Windows.Forms.ToolStripMenuItem mapEditorToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem PlayerPropertyToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem startToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem stopToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem netwerkToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem waitForPlayersToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem jointToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem addressesToolStripMenuItem;
         private System.Windows.Forms.MenuStrip menuStrip1;
         private System.Windows.Forms.ToolStripTextBox chatBox;
         private System.Windows.Forms.ToolStripMenuItem playersToolStripMenuItem;

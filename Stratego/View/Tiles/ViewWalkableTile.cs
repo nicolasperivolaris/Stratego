@@ -1,4 +1,5 @@
 ﻿using System.Drawing;
+using System.Windows.Forms;
 
 namespace Stratego.Model
 {
@@ -6,14 +7,12 @@ namespace Stratego.Model
     {
         public ViewWalkableTile() : base()
         {
-            BackColor = Color.Yellow;
+            BackColor = GetDefaultColor();
         }
 
-        public void SetOwnerColor(bool state)
+        protected override Color GetDefaultColor()
         {
-            if (state && (Tile.Owner != null))
-                BackColor = Tile.Owner.Color;
-            else BackColor = Tile.Piece != null ? Tile.Piece.Player.Color : Color.Yellow;
+            return Color.Yellow;
         }
     }
 }

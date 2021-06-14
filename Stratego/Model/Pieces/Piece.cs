@@ -39,6 +39,15 @@ namespace Stratego.Model
             }
         }
 
+        public bool IsFree(Tile tile)
+        {
+            if (tile.Accessible &&
+                (tile.Piece == null ||
+                !tile.Piece.Player.Equals(Player)))
+                return true;
+            else return false;
+        }
+
         public virtual bool IsPossible(Move move)
         {
             return false;
@@ -65,13 +74,11 @@ namespace Stratego.Model
                         to.Piece = from.Piece;
                     }
                 }
-                from.Remove();
+                from.Piece = null;
                 return true;
             }
             else
-            {
                 return false;
-            }
         }
 
         public override bool Equals(object obj)

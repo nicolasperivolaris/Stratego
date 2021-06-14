@@ -15,7 +15,7 @@ namespace Stratego.Utils
 
     public enum ActionType
     {
-        NormalMode, EditorMode, WaitForPlayer,
+        NormalMode, EditorMode, StartRequired,
         TileClick, FromDekToGrid, FromGridToDek, 
         Move
     }

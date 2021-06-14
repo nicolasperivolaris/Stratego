@@ -51,21 +51,14 @@ namespace Stratego.View
         protected abstract void OnClick(object sender, TileEventArgs eventArgs);
 
         protected virtual void OnClick(object sender, EventArgs e)
-        {
-            if (!(sender is ViewTile tile) || !Selectable)
-            {
-                MessageBox.Show(Error, "Error",
-                MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-            
-            if (sender is ViewWalkableTile)
+        {            
+            if (sender is ViewWalkableTile tile)
                 SelectedTile = tile;
 
             TileEventArgs eventArgs = new TileEventArgs()
             {
                 ActionType = ActionType.TileClick,
-                Action = tile.Tile,
+                Action = ((ViewTile)sender).Tile,
                 Sender = this
             };
 
