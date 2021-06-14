@@ -1,11 +1,14 @@
 ﻿using Stratego.Model;
 using Stratego.Network;
+using Stratego.Network.Socket;
 using Stratego.Sockets.Network;
 using Stratego.Utils;
 using StrategoServer.Games;
 using StrategoServer1;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows.Threading;
 
 namespace StrategoServer.Server
@@ -14,7 +17,6 @@ namespace StrategoServer.Server
     {
         private readonly MainWindow View;
         public ObservableCollection<Game> Games { get; set; }
-        private ObservableCollection<Player> Players { get; set; }
         private NetworkController NetworkController { get; set; }
 
         public ServerController(MainWindow view)
@@ -22,41 +24,59 @@ namespace StrategoServer.Server
             View = view;
             NetworkController = new NetworkController();
             NetworkController.PlayerConnection += OnNewClient;
+            NetworkController.PlayerLeave += OnPlayerLeave;
             NetworkController.Action += OnAction;
+            NetworkController.Message += OnMessage;
             NetworkController.StartAsServer();
 
-            Players = new ObservableCollection<Player>();
             Games = new ObservableCollection<Game>();
         }
 
-        private void OnAction(object sender, ActionEventArgs e)
+        private void OnMessage(object sender, StringEventArgs e)
         {
-            NetworkController.Send(e);
+            TransmitToOtherPlayers((Player)sender, e.Data);
         }
 
-        public void OnGameListChange(object sender, EventArgs e)
+        private void TransmitToOtherPlayers(Player exception, object o)
         {
-            throw new NotImplementedException();
+            Game game = Games.Single(g => g.Players.Contains(exception));
+            List<Player> otherPlayers = game.Players.Where(p => !p.Equals(exception)).ToList();
+            NetworkController.SendTo(otherPlayers, o);
+        }
+
+        private void OnAction(object sender, ActionSerializer e)
+        {
+            TransmitToOtherPlayers(e.Player, e);
+        }
+
+        private void OnPlayerLeave(object sender, PlayerEventArgs e)
+        {
+            Game gLeaving = Games.SingleOrDefault(g => g.Players.Contains(e.Player));
+            View.Dispatcher.Invoke(delegate { gLeaving.Players.Remove(e.Player); });
+            NetworkController.RemovePlayer(e.Player, gLeaving.Players.ToList());
         }
 
         private void OnNewClient(object sender, PlayerEventArgs e)
         {
-            View.Dispatcher.BeginInvoke((Action)delegate ()
+            Game game = Games.FirstOrDefault(g=>!g.IsFull());
+            if (game == null) //all the games are full
             {
-                Players.Add(e.Player);
-                bool gameFound = false;
-                foreach(Game g in Games)
+                game = new Game(2, "Game" + (Games.Count - 1));
+                View.Dispatcher.BeginInvoke((Action)delegate ()
                 {
-                    if (g.AcceptPlayers())
-                    {
-                        g.Players.Add(e.Player);
-                        gameFound = true;
-                        break;
-                    }
-                }
-                if (!gameFound) Games.Add(new Game(2, "Game" + (Games.Count - 1)));
-            });
+                    Games.Add(game);
+                });
+            }
 
+            View.Dispatcher.Invoke(delegate { game.Add(e.Player); });
+            TransmitToOtherPlayers(e.Player, e.Player); //introduce the new player to the other
+            foreach (Player player in game.Players)
+            {
+                if(player != e.Player)
+                {
+                    NetworkController.SendTo(e.Player, player); //introduce other players to the new one
+                }
+            }
         }
     }
 }

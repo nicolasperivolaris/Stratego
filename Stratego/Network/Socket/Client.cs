@@ -58,12 +58,18 @@ namespace Stratego.Sockets.Network
         {
             Send(ListeningSocket, msg);
         }
-        public override void SendTo(string msg, List<IPAddress> partners)
+        public override void SendTo(string msg, List<Socket> partners)
         {
-            foreach (IPAddress partner in partners)
+            foreach (Socket partner in partners)
             {
-                if (((IPEndPoint)ListeningSocket.RemoteEndPoint).Address == partner) Send(ListeningSocket, msg);
+                if (ListeningSocket == partner) Send(ListeningSocket, msg);
             }
+        }
+
+        public override void SendTo(string msg, Socket partner)
+        {
+            if (ListeningSocket == partner) Send(ListeningSocket, msg);
+            else throw new Exception("Incorrect address");
         }
     }
 }

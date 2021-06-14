@@ -67,13 +67,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Model\Grid.cs" />
+    <Compile Include="Model\Tiles\Point.cs" />
     <Compile Include="Model\Tiles\Tile.cs" />
     <Compile Include="Network\Socket\Client.cs" />
     <Compile Include="Network\NetworkController.cs" />
     <Compile Include="Network\Flag.cs" />
+    <Compile Include="Network\Socket\GridEventArgs.cs" />
     <Compile Include="Network\Socket\NetworkManager.cs" />
+    <Compile Include="Network\Socket\IPAddressEventArgs.cs" />
     <Compile Include="Network\Socket\Server.cs" />
-    <Compile Include="Network\Socket\DataReceivedEventArgs.cs" />
+    <Compile Include="Network\Socket\StringEventArgs.cs" />
     <Compile Include="Model\Dek.cs" />
     <Compile Include="Utils\ActionSerializer.cs" />
     <Compile Include="Utils\GameControler.cs" />
@@ -83,6 +86,12 @@
     </Compile>
     <Compile Include="View\ConnectDialog.Designer.cs">
       <DependentUpon>ConnectDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="View\ErrorDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="View\ErrorDialog.Designer.cs">
+      <DependentUpon>ErrorDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="View\Panels\DekPanel.cs">
       <SubType>Component</SubType>
@@ -126,6 +135,9 @@
     <Compile Include="View\PlayerDialog.Designer.cs">
       <DependentUpon>PlayerDialog.cs</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="View\ErrorDialog.resx">
+      <DependentUpon>ErrorDialog.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="View\Tiles\ViewTile.resx">
       <DependentUpon>ViewTile.cs</DependentUpon>
     </EmbeddedResource>

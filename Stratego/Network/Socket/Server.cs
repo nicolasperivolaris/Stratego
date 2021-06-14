@@ -1,4 +1,5 @@
 ﻿using Stratego.Network;
+using Stratego.Network.Socket;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -21,6 +22,13 @@ namespace Stratego.Sockets.Network
                 SocketType.Stream, ProtocolType.Tcp);
             IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Any, Port);
             ListeningSocket.Bind(localEndPoint);
+
+            PartnerQuit += OnPartnerQuit;
+        }
+
+        private void OnPartnerQuit(object sender, IPAddressEventArgs e)
+        {
+            Clients.RemoveAll(c=>!c.Connected);
         }
 
         public override void Connect()
@@ -84,13 +92,18 @@ namespace Stratego.Sockets.Network
             }
         }
 
-        public override void SendTo(string msg, List<IPAddress> partners)
+        public override void SendTo(string msg, List<Socket> partners)
         {
-            foreach (IPAddress partner in partners)
+            foreach (Socket partner in partners)
             {
-                Socket client = Clients.FirstOrDefault(c => ((IPEndPoint)c.RemoteEndPoint).Address == partner);
-                if (client != null) Send(client, msg);
+                SendTo(msg, partner);
             }
+        }
+
+        public override void SendTo(string msg, Socket partner)
+        {
+            Socket client = Clients.FirstOrDefault(c => (c == partner));
+            if (client != null) Send(client, msg);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Stratego.Model;
+using Stratego.Network.Socket;
 using Stratego.Sockets.Network;
 using Stratego.Utils;
 using System;
@@ -13,13 +14,18 @@ namespace Stratego.Network
     public class NetworkController
     {
         public List<Player> Players { get; private set; }
+        public bool Connected { get; private set; }
 
         private NetworkManager NetworkManager;
         //private Dispatcher Dispatcher;
 
         public event EventHandler<PlayerEventArgs> PlayerConnection;
+        public event EventHandler<StringEventArgs> PlayerNumberReceived;
+        public event EventHandler<PlayerEventArgs> PlayerLeave;
+        public event EventHandler<GridEventArgs> GridReceived;
         public event EventHandler<StringEventArgs> Message;
-        public event EventHandler<ActionEventArgs> Action;
+        public event EventHandler<ActionSerializer> Action;
+        public event EventHandler ConnectionError;
 
         public NetworkController()
         {
@@ -27,18 +33,60 @@ namespace Stratego.Network
         }
 
         /// <summary>
-        /// Send an action on the network
+        /// Send an object on the network to all other players
         /// </summary>
         /// <param name="serializer"></param>
-        public void Send(object o)
+        private void Send(object o)
         {
-            Flag f = Flag.Message;
-            if (o is Player) f = Flag.Introducing;
-            if (o is ActionSerializer) f = Flag.Action;
-            if (o is String) f = Flag.Message;
-
+            Flag f = GetFlag(o);
             //Flag is the first char of a msg
-            NetworkManager.Send((int)f + Serialize(o));
+            try
+            {
+                NetworkManager.Send(((int)f) + Serialize(o));
+            }
+            catch(Exception e)
+            {
+                Console.Error.WriteLine(e.Message);
+                ConnectionError?.Invoke(this, EventArgs.Empty);
+            }
+        }
+
+        private Flag GetFlag(object o)
+        {
+            Flag f = Flag.Crap;
+            if (o is Player) f = Flag.IntroPlayer;
+            else if (o is Grid) f = Flag.IntroGrid;
+            else if (o is ActionSerializer) f = Flag.Action;
+            else if (o is String) f = Flag.Message;
+            return f;
+        }
+
+        public void SendTo(List<Player> players, object o)
+        {
+            Flag f = GetFlag(o);
+            NetworkManager.SendTo((int)f + Serialize(o), players.Select(s => s.Socket).ToList());
+        }
+
+        public void SendTo(Player player, object o)
+        {
+            Flag f = GetFlag(o);
+            NetworkManager.SendTo((int)f + Serialize(o), player.Socket);
+        }
+
+        public void RemovePlayer(Player player, List<Player> partners)
+        {
+            Players.Remove(player);//if not already done
+            NetworkManager.SendTo((int)Flag.Quit + Serialize(player), partners.Select(s=>s.Socket).ToList());
+        }
+
+        public void Send(ActionSerializer action)
+        {
+            Send((object)action);
+        }
+
+        public void Send(String s)
+        {
+            Send((object)s);
         }
 
         public void StopWaiting()
@@ -55,7 +103,6 @@ namespace Stratego.Network
         {
             Start(new Client(server));
             Send(client);
-
         }
 
         private void Start(NetworkManager mode)
@@ -63,53 +110,93 @@ namespace Stratego.Network
             NetworkManager = mode;
             NetworkManager.Connect();
             NetworkManager.DataReceived += OnDataReceived;
+            NetworkManager.PartnerQuit += OnPartnerQuit;
+            NetworkManager.PartnerArrival += OnPartnerArrival;
+            Connected = true;
+        }
+
+        private void OnPartnerArrival(object sender, IPAddressEventArgs e)
+        {
+            Console.WriteLine("New player");
+        }
+
+        private void OnPartnerQuit(object sender, IPAddressEventArgs e)
+        {
+            Player p = Players.SingleOrDefault(s => s.Address == e.Address);
+            PlayerLeave?.Invoke(this, new PlayerEventArgs(p));
+            Players.Remove(p);
         }
 
         private void OnDataReceived(object sender, StringEventArgs e)
         {
-            IPAddress address = (IPAddress)sender;
+            System.Net.Sockets.Socket socket = (System.Net.Sockets.Socket)sender;
 
             Flag f;
             String o;
             if (Enum.TryParse(e.Data[0] + "", out f) == false) 
             {
-                f = Flag.Message;
+                f = Flag.Crap;
                 o = e.Data;
             }
             else
                 o = e.Data.Substring(1); //first char is the flag
 
-            Player player = Players.FirstOrDefault(p=>p.Address == address);
+            Player player = Players.FirstOrDefault(p=>p.Socket == socket);
             switch (f)
             {
-                case Flag.Introducing:
+                case Flag.IntroPlayer:
                     {
                         player = TryDeserialize<Player>(o);
-                        player.Address = address;
-                        if(!Players.Contains(player))Players.Add(player);
-                        PlayerConnection?.Invoke(this, new PlayerEventArgs(player));
+                        player.Socket = socket;
+                        if (NetworkManager is Server)
+                        {
+                            player.Number = Players.Count;
+                            NetworkManager.SendTo((int)Flag.PlayerNumber + "" +player.Number, player.Socket);
+                        }
+                        if (!Players.Contains(player))Players.Add(player);
+                        PlayerConnection?.Invoke(player, new PlayerEventArgs(player));
                         break; 
                     }
+                case Flag.PlayerNumber:
+                    {
+                        PlayerNumberReceived?.Invoke(player, new StringEventArgs(o));
+                        break;
+                    }
+                case Flag.IntroGrid:
+                    {
+                        break;
+                    }
                 case Flag.Action:
-                    Action?.Invoke(this,TryDeserialize<ActionEventArgs>(o));
+                    Action?.Invoke(player, TryDeserialize<ActionSerializer>(o));
                     break;
-                case Flag.Quit:
+                case Flag.Quit: PlayerLeave?.Invoke(player, new PlayerEventArgs(player));
                     break;
                 case Flag.Message:
+                    Message?.Invoke(player, new StringEventArgs(o));
+                    break;
                 default:
-                    Message?.Invoke(this, new StringEventArgs(o));
+                    Console.WriteLine(o);
                     break;
             }
         }
 
         public static String Serialize(object o)
         {
+            if (o is String)
+                return (String)o;
+
             XmlSerializer serializer = new XmlSerializer(o.GetType());
             using (TextWriter tw = new StringWriter())
             {
                 serializer.Serialize(tw, o);
                 return tw.ToString();
             }
+        }
+
+        public void BreakConnection()
+        {
+            NetworkManager.Send((int)Flag.Quit + "" + Flag.Quit);
+            NetworkManager.CloseConnection();
         }
 
         public static T TryDeserialize<T>(String data)

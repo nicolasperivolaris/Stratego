@@ -17,6 +17,7 @@ namespace Stratego.Model
             set { 
                 _tile = value;
                 value.PieceChanged += OnPieceChanged;
+
                 UpdateView();
             }
         }
@@ -29,7 +30,10 @@ namespace Stratego.Model
 
         private void OnPieceChanged(object sender, EventArgs e)
         {
-            UpdateView();
+            Invoke((MethodInvoker)delegate ()
+            {
+                UpdateView();
+            });
         }
 
         public void UpdateView()
@@ -40,11 +44,13 @@ namespace Stratego.Model
                 this.powerLl.Text = ((int)Tile.Piece.Type).ToString();
                 this.quantityLl.Text = (Tile.Piece.MaxAmount - Tile.Piece.Player.PieceFactory.GetCount(Tile.Piece)).ToString();
                 this.powerLl.Show();
+                BackColor = Tile.Piece.Player.Color;
             }
             else
             {
                 Text = "";
                 this.powerLl.Hide();
+                BackColor = Color.Yellow;
             }
         }
 
@@ -55,31 +61,31 @@ namespace Stratego.Model
 
         private void InitializeComponent()
         {
-            this.powerLl = new System.Windows.Forms.Label();
-            this.quantityLl = new System.Windows.Forms.Label();
+            this.powerLl = new Label();
+            this.quantityLl = new Label();
             this.SuspendLayout();
             // 
             // powerLl
             // 
             this.powerLl.AutoSize = true;
-            this.powerLl.BackColor = System.Drawing.Color.Transparent;
-            this.powerLl.Dock = System.Windows.Forms.DockStyle.Left;
+            this.powerLl.BackColor = Color.Transparent;
+            this.powerLl.Dock = DockStyle.Left;
             this.powerLl.Location = new System.Drawing.Point(0, 0);
             this.powerLl.Name = "powerLl";
-            this.powerLl.Padding = new System.Windows.Forms.Padding(1, 3, 1, 1);
-            this.powerLl.Size = new System.Drawing.Size(2, 21);
+            this.powerLl.Padding = new Padding(1, 3, 1, 1);
+            this.powerLl.Size = new Size(2, 21);
             this.powerLl.TabIndex = 0;
             this.powerLl.Hide();
             // 
             // quantityLl
             // 
             this.quantityLl.AutoSize = true;
-            this.quantityLl.BackColor = System.Drawing.Color.Transparent;
+            this.quantityLl.BackColor = Color.Transparent;
             this.quantityLl.Dock = DockStyle.Right;
             this.quantityLl.Location = new System.Drawing.Point(0, 0);
             this.quantityLl.Name = "quantityLl";
-            this.quantityLl.Padding = new System.Windows.Forms.Padding(1, 3, 1, 1);
-            this.quantityLl.Size = new System.Drawing.Size(2, 21);
+            this.quantityLl.Padding = new Padding(1, 3, 1, 1);
+            this.quantityLl.Size = new Size(2, 21);
             this.quantityLl.TabIndex = 0;
             // 
             // Tile

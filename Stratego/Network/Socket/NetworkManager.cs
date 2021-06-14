@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Stratego.Network.Socket;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
@@ -11,7 +12,8 @@ namespace Stratego.Sockets.Network
         public readonly int Port = 5500;
 
         public event EventHandler<StringEventArgs> DataReceived;
-        public event EventHandler PartnerArrival;
+        public event EventHandler<IPAddressEventArgs> PartnerArrival;
+        public event EventHandler<IPAddressEventArgs> PartnerQuit;
 
         public const string EOL = "<EOL>";
 
@@ -21,7 +23,9 @@ namespace Stratego.Sockets.Network
 
         public abstract void Send(String msg);
 
-        public abstract void SendTo(String msg, List<IPAddress> partners);
+        public abstract void SendTo(String msg, List<Socket> partners);
+
+        public abstract void SendTo(String msg, Socket partners);
 
         protected void Send(Socket EndPoint, String data)
         {
@@ -39,47 +43,56 @@ namespace Stratego.Sockets.Network
             int bytesRead;
             try
             {
+
                 bytesRead = state.WorkSocket.EndReceive(ar);
-            }
-            catch (SocketException) { return; }
 
-            String tmp = Encoding.ASCII.GetString(state.Buffer);
-            if ((state.Content + tmp).Contains(EOL))
-            {            
-                string[] msgs = (state.Content + tmp).Split(new string[] { EOL }, StringSplitOptions.None);
 
-                for (int i = 0; i < msgs.Length - 1; i++)//send all the messages but the queue if more than one in this stream 
+                String tmp = Encoding.ASCII.GetString(state.Buffer);
+                if ((state.Content + tmp).Contains(EOL))
                 {
-                    DataReceived?.Invoke(((IPEndPoint)state.WorkSocket.RemoteEndPoint).Address,
-                    new StringEventArgs(msgs[i]));
+                    string[] msgs = (state.Content + tmp).Trim('\0').Split(new string[] { EOL }, StringSplitOptions.None);
+
+                    for (int i = 0; i < msgs.Length - 1; i++)//send all the messages but the queue if more than one in this stream 
+                    {
+                        DataReceived?.Invoke(state.WorkSocket,
+                        new StringEventArgs(msgs[i]));
+                    }
+                    state.Content.Clear();
+                    state.Content.Append(msgs[msgs.Length - 1]); // save the queue
                 }
-                state.Content.Clear();
-                state.Content.Append(msgs[msgs.Length - 1]); // save the queue
+                else
+                {
+                    state.Content.Append(tmp);
+                }
+
+
+                Array.Clear(state.Buffer, 0, state.BufferSize);
+                state.WorkSocket.BeginReceive(state.Buffer, 0, state.BufferSize, 0,
+                        new AsyncCallback(ReceiveDataAsync), state);
+
             }
-            else
+            catch(SocketException)
             {
-                state.Content.Append(tmp);
+                PartnerQuit?.Invoke(this, new IPAddressEventArgs(state.address));
+                return;
             }
-
-
-            Array.Clear(state.Buffer, 0, state.BufferSize);
-            state.WorkSocket.BeginReceive(state.Buffer, 0, state.BufferSize, 0,
-                    new AsyncCallback(ReceiveDataAsync), state);
         }
 
         protected virtual void SendCallback(IAsyncResult ar)
         {
-            Console.WriteLine("Message send: " + ((Socket)ar.AsyncState).EndSend(ar));
+            try
+            {
+                Console.WriteLine("Message send: " + ((Socket)ar.AsyncState).EndSend(ar));
+            }
+            catch (SocketException)
+            {
+                Console.Error.WriteLine("Connection failed");
+            }
         }
 
         protected void OnPartnerArrival(Socket partner)
         {
-            PartnerArrival?.Invoke(((IPEndPoint)partner.RemoteEndPoint).Address, EventArgs.Empty);
-        }
-
-        protected virtual void OnReceived(StringEventArgs e)
-        {
-            DataReceived?.Invoke(this, e);
+            PartnerArrival?.Invoke(this, new IPAddressEventArgs(((IPEndPoint)partner.RemoteEndPoint).Address));
         }
 
         public virtual void CloseConnection()
@@ -91,19 +104,31 @@ namespace Stratego.Sockets.Network
         protected class StateObject
         {
             // Size of receive buffer.  
-            public int BufferSize = 2;
+            public int BufferSize = 100;
 
             // Receive buffer.  
             public byte[] Buffer;
 
             // Client socket.
-            public Socket WorkSocket = null;
+            private Socket _workSocket = null;
+            public Socket WorkSocket
+            {
+                get => _workSocket;
+                set
+                {
+                    _workSocket = value;
+                    if (value != null) address = ((IPEndPoint)_workSocket.RemoteEndPoint).Address;
+                }
+            }
+
+            public IPAddress address;
 
             public StringBuilder Content;
 
+
             public StateObject()
             {
-                Content = new StringBuilder(); 
+                Content = new StringBuilder();
                 Buffer = new byte[BufferSize];
             }
         }

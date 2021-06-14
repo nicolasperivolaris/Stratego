@@ -15,6 +15,9 @@ namespace Stratego.View
         public Grid Grid { get; set; }
 
         private Move CurrentMove = new Move();
+        public bool PiecesCanMove { get; set; }
+
+        public event EventHandler<MoveEventArgs> MovedPiece;
 
         public GridPanel() { }
 
@@ -66,26 +69,26 @@ namespace Stratego.View
         }
 
 
-        protected override void OnTileClick(object sender, TileEventArgs e)
+        protected override void OnClick(object sender, TileEventArgs e)
         {
-            Tile clicked = ((ViewTile)e.Object).Tile;
-            if (CurrentMove.From == null)
+            Tile clicked = e.Action;
+            if (CurrentMove.From?.Piece == null) //is there already a tile selected to begin a move ?
             {
-                if(!clicked.IsEmpty()) CurrentMove.From = clicked;
+                if(!clicked.IsEmpty()) CurrentMove.From = clicked ;
             }
             else
             {
-                CurrentMove.To = clicked;
-                e.ActionType = ActionType.Move;
-                e.Object = CurrentMove;
-
-                CurrentMove = new Move()
+                if (PiecesCanMove)
                 {
-                    From = clicked
-                };
+                    CurrentMove.To = clicked;
+                    MoveEventArgs move = new MoveEventArgs();
+                    move.ActionType = ActionType.Move;
+                    move.Action = CurrentMove;
+                    move.Sender = Players[Program.PLAYER];
+                    MovedPiece?.Invoke(this, move);
+                    CurrentMove.From = CurrentMove.To; // keep the last tile selected as begin of the next move
+                }
             }
-
-
         }
     }
 }

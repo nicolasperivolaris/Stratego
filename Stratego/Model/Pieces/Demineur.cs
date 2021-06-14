@@ -2,6 +2,7 @@
 {
     public class Demineur : Movable
     {
+        public Demineur() { }
         public Demineur(Player player) : base(Type.demineur, player) { }
 
         public override bool TryKill(Piece defense)

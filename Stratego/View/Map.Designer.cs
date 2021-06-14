@@ -198,6 +198,8 @@ namespace Stratego.View
             this.chatBox.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.chatBox.Name = "chatBox";
             this.chatBox.Size = new System.Drawing.Size(200, 27);
+            this.chatBox.Enter += new System.EventHandler(this.ChatBox_Enter);
+            this.chatBox.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.ChatBox_KeyPress);
             // 
             // content
             // 

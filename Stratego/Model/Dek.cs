@@ -11,8 +11,8 @@ namespace Stratego.Model
         {
             foreach (var piece in factory.GetNewPiecesSet())
             {
-                Tile tile = new Tile(piece.Value, new System.Drawing.Point(0, (int)piece.Key));
-
+                Tile tile = new Tile(piece.Value, new Point(0, (int)piece.Key));
+                tile.Owner = factory.Player;
                 Add(piece.Key, tile);
             }
         }

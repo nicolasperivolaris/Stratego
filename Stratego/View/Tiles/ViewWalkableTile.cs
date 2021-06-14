@@ -13,7 +13,7 @@ namespace Stratego.Model
         {
             if (state && (Tile.Owner != null))
                 BackColor = Tile.Owner.Color;
-            else BackColor = Color.Yellow;
+            else BackColor = Tile.Piece != null ? Tile.Piece.Player.Color : Color.Yellow;
         }
     }
 }

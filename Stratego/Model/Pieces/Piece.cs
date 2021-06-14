@@ -51,7 +51,7 @@ namespace Stratego.Model
 
         public bool Move(Tile from, Tile to)
         {
-            if (from.Piece.IsPossible(new Model.Move() { From = from, To = to }))
+            if (IsPossible(new Move() { From = from, To = to }))
             {
                 if (to.IsEmpty())
                 {

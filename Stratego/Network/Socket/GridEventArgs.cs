@@ -5,9 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Stratego.Utils
+namespace Stratego.Network.Socket
 {
-    public class MoveEventArgs:ActionEventArgs<Move, Player>
+    public class GridEventArgs:EventArgs
+
     {
+        public Grid Grid { get; set; }
     }
 }

@@ -14,9 +14,9 @@ namespace Stratego.Utils
 
     public class ActionSerializer
     {
-        public Player Player;
-        public ActionType ActionType;
-        public Move Move;
+        public Player Player { get; set; }
+        public ActionType ActionType { get; set; }
+        public Move Move { get; set; }
 
         public ActionSerializer()
         {

@@ -20,7 +20,8 @@ namespace Stratego.View
         public event EventHandler WaitForPlayerChange;
         public event EventHandler<StringEventArgs> JointDialogSucceed;
         public event EventHandler<TileEventArgs> TileClicked;
-
+        public event EventHandler<MoveEventArgs> MovedPiece;
+        public event EventHandler<StringEventArgs> MessageSent;
 
         public Map(Player[] players, Grid grid)
         {
@@ -31,47 +32,50 @@ namespace Stratego.View
                 Dock = DockStyle.Fill,
                 Name = "grid"
             };
-            Grid.TileClicked += OnGridTileClicked;
+            Grid.TileClicked += OnTileClicked;
+            Grid.MovedPiece += OnMovedPiece;
             DekPanel = new DekPanel()
             {
                 Dock = DockStyle.Fill,
                 Name = "dekPanel"
             };
-            DekPanel.TileClicked += OnDekTileClicked;
+            DekPanel.TileClicked += TileClicked;
 
 
             Controls.Find("content", false)[0].Controls.Add(Grid);
             Controls.Find("content", false)[0].Controls.Add(DekPanel);
         }
 
-        public void OnChatMessage(object sender, StringEventArgs msg)
+        private void OnMovedPiece(object sender, MoveEventArgs e)
+        {
+            MovedPiece(sender, e);
+        }
+
+        public void OnMessageReceived(object sender, StringEventArgs msg)
         {
             chatBox.Control.BeginInvoke((MethodInvoker)delegate ()
             {
-                chatBox.Text = msg.Data;
+                chatBox.Text = ((Player)sender).Name + ((Player)sender).Number + " : " + msg.Data;
             });
         }
 
-        private void OnGridTileClicked(object sender, TileEventArgs e)
+        private void OnTileClicked(object sender, TileEventArgs e)
         {
-            if(e.ActionType == ActionType.TileClick
-                && DekPanel.SelectedTile != null
-                && Grid.SelectedTile is ViewWalkableTile selected) 
+            if (DekPanel.Selectable && DekPanel.SelectedTile != null) //so player try to move a piece from the dek to the grid
             {
-                e.ActionType = ActionType.FromDekToGrid;
-                e.Object = new Move()
+                MoveEventArgs move = new MoveEventArgs
                 {
-                    From = DekPanel.SelectedTile.Tile,
-                    To = Grid.SelectedTile.Tile
+                    ActionType = ActionType.FromDekToGrid,
+                    Action = new Move()
+                    {
+                        From = DekPanel.SelectedTile.Tile,
+                        To = Grid.SelectedTile.Tile
+                    },
+                    Sender = Players[Program.PLAYER]
                 };
                 Grid.ResetSelection();
+                MovedPiece?.Invoke(sender, move);
             }
-            TileClicked(sender, e);
-        }
-
-        private void OnDekTileClicked(object sender, TileEventArgs e)
-        {
-
         }
 
         private void OnStart()
@@ -108,25 +112,6 @@ namespace Stratego.View
         private void EditorModeClick(object sender, EventArgs e)
         {
             ToolStripMenuItem editor = ((ToolStripMenuItem)sender);
-            if (editor.Checked)
-            {
-                Grid.BackColor = GridPanel.DefaultBackColor;
-                foreach (Control control in Grid.Controls)
-                {
-                    if (control is ViewWalkableTile tile)
-                        tile.SetOwnerColor(false);
-                }
-            }
-            else
-            {
-                Grid.BackColor = Color.LightGreen;
-                foreach (Control control in Grid.Controls)
-                {
-                    if (control is ViewWalkableTile tile)
-                        tile.SetOwnerColor(false);
-                }
-            }
-
             editor.Checked = !editor.Checked;
             EditorModeChange(sender, e);
         }
@@ -137,6 +122,9 @@ namespace Stratego.View
             {
                 if (tile is ViewWalkableTile walkTile) walkTile.SetOwnerColor(activated);
             }
+            Grid.BackColor = activated ? Color.LightGreen : Grid.BackColor = GridPanel.DefaultBackColor;
+            DekPanel.Selectable = activated;
+            Grid.PiecesCanMove = !activated;
         }
 
         private void WaitForPlayersToolStripMenuItem_Click(object sender, EventArgs e)
@@ -164,6 +152,20 @@ namespace Stratego.View
                 JointDialogSucceed(sender, new StringEventArgs(connectDialog.Controls["addressBox"].Text));
 
             connectDialog.Dispose();
+        }
+
+        private void ChatBox_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if(e.KeyChar == '\r')
+            {
+                MessageSent.Invoke(this, new StringEventArgs(chatBox.Text));
+                chatBox.Clear();
+            }
+        }
+
+        private void ChatBox_Enter(object sender, EventArgs e)
+        {
+            chatBox.Clear();
         }
     }
 }

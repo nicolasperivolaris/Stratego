@@ -1,4 +1,5 @@
 ﻿using Stratego.Model;
+using Stratego.Model.Tiles;
 using Stratego.Utils;
 using Stratego.View.Tiles;
 using System;
@@ -13,6 +14,7 @@ namespace Stratego.View
 
         public virtual ViewTile SelectedTile { get; set; }
         public event EventHandler<TileEventArgs> TileClicked;
+        public String Error;
 
         private bool _selectable = false;
         
@@ -46,23 +48,29 @@ namespace Stratego.View
             SelectedTile = null;
         }
 
-        protected abstract void OnTileClick(object tile, TileEventArgs e);
+        protected abstract void OnClick(object sender, TileEventArgs eventArgs);
 
-        protected void OnClick(object sender, EventArgs e)
+        protected virtual void OnClick(object sender, EventArgs e)
         {
-            if (Selectable && sender is ViewWalkableTile tile)
+            if (!(sender is ViewTile tile) || !Selectable)
+            {
+                MessageBox.Show(Error, "Error",
+                MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            
+            if (sender is ViewWalkableTile)
                 SelectedTile = tile;
 
             TileEventArgs eventArgs = new TileEventArgs()
             {
                 ActionType = ActionType.TileClick,
-                Object = sender,
+                Action = tile.Tile,
                 Sender = this
             };
 
-            OnTileClick(sender, eventArgs);
-
-            TileClicked(this, eventArgs);
+            TileClicked?.Invoke(this, eventArgs);
+            OnClick(this, eventArgs);
         }
     }
 }

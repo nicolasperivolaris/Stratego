@@ -2,6 +2,7 @@
 {
     public class Spy : Movable
     {
+        public Spy(){ }
         public Spy(Player player) : base(Type.espion, player) { }
 
         public override bool TryKill(Piece defense)

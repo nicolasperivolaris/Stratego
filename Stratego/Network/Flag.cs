@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace Stratego.Network
 {
-    public enum Flag
+    enum Flag
     {
-        Introducing, Map, Action, Quit, Message
+        IntroPlayer, PlayerNumber, IntroGrid, Map, Action, Quit, Message, Crap
     }
 }

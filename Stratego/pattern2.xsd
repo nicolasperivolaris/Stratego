@@ -2,7 +2,7 @@
 <map rows="10" columns="10">
   <player number="0" color="green"/>
   <player number="1" color="red"/>
-  <row i="0">
+  <row i="0" owner="1">
     <cell j="0" accessible="true"/>
     <cell j="1" accessible="true"/>
     <cell j="2" accessible="true"/>
@@ -14,7 +14,7 @@
     <cell j="8" accessible="true"/>
     <cell j="9" accessible="true"/>
   </row>
-  <row i="1">
+  <row i="1" owner="1">
     <cell j="0" accessible="true"/>
     <cell j="1" accessible="true"/>
     <cell j="2" accessible="true"/>
@@ -26,7 +26,7 @@
     <cell j="8" accessible="true"/>
     <cell j="9" accessible="true"/>
   </row>
-  <row i="2">
+  <row i="2" owner="1">
     <cell j="0" accessible="true"/>
     <cell j="1" accessible="true"/>
     <cell j="2" accessible="true"/>
@@ -38,7 +38,7 @@
     <cell j="8" accessible="true"/>
     <cell j="9" accessible="true"/>
   </row>
-  <row i="3">
+  <row i="3" owner="1">
     <cell j="0" accessible="true"/>
     <cell j="1" accessible="true"/>
     <cell j="2" accessible="true"/>

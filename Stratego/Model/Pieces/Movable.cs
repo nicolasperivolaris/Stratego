@@ -2,7 +2,7 @@
 
 namespace Stratego
 {
-    public class Movable : Model.Piece
+    public class Movable : Piece
     {
         public Movable() { }
         public Movable(Type type, Player player) : base(type, player) { }

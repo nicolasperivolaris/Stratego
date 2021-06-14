@@ -1,10 +1,16 @@
-﻿namespace Stratego.Utils
+﻿using Stratego.Model;
+using System.Xml.Serialization;
+
+namespace Stratego.Utils
 {
-    public class ActionEventArgs : System.EventArgs
+    [XmlInclude(typeof(Piece))]
+    [XmlInclude(typeof(Player))]
+    [XmlInclude(typeof(Move))]
+    public class ActionEventArgs<TAction, TSender> : System.EventArgs
     {
         public ActionType ActionType { get; set; }
-        public object Sender { get; set; }
-        public object Object { get; set; }
+        public TSender Sender { get; set; }
+        public TAction Action { get; set; }
     }
 
     public enum ActionType

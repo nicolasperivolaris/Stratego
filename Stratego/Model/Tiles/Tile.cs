@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,10 +7,9 @@ using System.Xml.Serialization;
 
 namespace Stratego.Model.Tiles
 {
-    public class Tile
+    public class Tile: ICloneable
     {
         private Piece _Piece;
-        [XmlIgnoreAttribute]
         public Piece Piece
         {
             get { return _Piece; }
@@ -51,6 +49,16 @@ namespace Stratego.Model.Tiles
         {
             Piece.ToFactory();
             Piece = null;
+        }
+
+        public object Clone()
+        {
+            return new Tile(Accessible)
+            {
+                Piece = this.Piece,
+                Owner = this.Owner,
+                Coordinate = this.Coordinate
+            };
         }
     }
 }

@@ -30,7 +30,7 @@ namespace Stratego.View
 
         public DekPanel() : base()
         {
-            ColumnCount = 1;
+            ColumnCount = 0;
             RowStyles.Clear();
             ColumnStyles.Clear();
 
@@ -46,8 +46,6 @@ namespace Stratego.View
                     RowStyles.Add(new RowStyle(SizeType.Percent, 100 / player.Dek.Count));
                 }
                 RowStyles.Add(new RowStyle(SizeType.Absolute, 0));
-
-
             }
 
             Dek dek = player.Dek;
@@ -58,7 +56,7 @@ namespace Stratego.View
             foreach (var iTile in dek)
             {
                 int iRow = row % (Enum.GetNames(typeof(Model.Type)).Length - 1);
-                Add(GetNewViewTile(iTile.Value), player.Number, iRow);
+                Add(GetNewViewTile(iTile.Value), ColumnCount-1, iRow);
                 row++;
             }
             Controls.Add(new Label(), 0, 12);
@@ -69,19 +67,20 @@ namespace Stratego.View
         {
             ViewWalkableTile tile = new ViewWalkableTile
             {
-                Tile = value
+                Tile = value,
+                BackColor = value.Owner.Color
             };
             return tile;
         }
 
         public void OnAmountChanged(object sender, Piece piece)
         {
-            ViewWalkableTile tile = Controls.OfType<ViewWalkableTile>().Single(view => (view.Tile.Piece.Equals(piece)));
+            ViewWalkableTile tile = Controls.OfType<ViewWalkableTile>().Single(view => (view.Tile.Piece.Player == piece.Player && view.Tile.Piece.Equals(piece)));
             
             Invoke((MethodInvoker)delegate { tile.UpdateView(); });
         }
 
-        protected override void OnTileClick(object tile, TileEventArgs e)
+        protected override void OnClick(object sender, TileEventArgs eventArgs)
         {
         }
     }

@@ -32,6 +32,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.OKBt = new System.Windows.Forms.Button();
             this.CancelBt = new System.Windows.Forms.Button();
+            this.label2 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // addressBox
@@ -50,6 +51,7 @@
             this.label1.Size = new System.Drawing.Size(113, 17);
             this.label1.TabIndex = 1;
             this.label1.Text = "Server address :";
+            this.label1.Click += new System.EventHandler(this.label1_Click);
             // 
             // OKBt
             // 
@@ -73,6 +75,15 @@
             this.CancelBt.Text = "Cancel";
             this.CancelBt.UseVisualStyleBackColor = true;
             // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(12, 63);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(237, 17);
+            this.label2.TabIndex = 4;
+            this.label2.Text = "Let empty to connect on local server";
+            // 
             // ConnectDialog
             // 
             this.AcceptButton = this.OKBt;
@@ -80,6 +91,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.CancelBt;
             this.ClientSize = new System.Drawing.Size(312, 146);
+            this.Controls.Add(this.label2);
             this.Controls.Add(this.CancelBt);
             this.Controls.Add(this.OKBt);
             this.Controls.Add(this.label1);
@@ -98,5 +110,6 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button OKBt;
         private System.Windows.Forms.Button CancelBt;
+        private System.Windows.Forms.Label label2;
     }
 }

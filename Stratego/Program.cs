@@ -10,7 +10,7 @@ namespace Stratego
     static class Program
     {
         public const int PLAYER = 0;
-        public const int ENEMI = 1;
+        public const int ENEMY = 1;
 
         /// <summary>
         /// Point d'entrée principal de l'application.
@@ -24,10 +24,15 @@ namespace Stratego
             Player[] players = new Player[2];
             players[Program.PLAYER] = new Player
             {
-                Name = "Player 1",
+                Name = "Player",
                 Color = Color.Green,
-                Number = 0,
-                Address = System.Net.IPAddress.Loopback
+                Number = 0
+            };
+            players[Program.ENEMY] = new Player
+            {
+                Name = "Enemy",
+                Color = Color.Red,
+                Number = 1
             };
             GameControler controler = new GameControler(players);
             controler.Start();
