@@ -22,8 +22,7 @@ namespace Stratego.Utils
         private enum Mode
         {
             Normal, Editor, Run, WaitTurn,
-            StartAwaiting, OtherPlayerWaitForStart,
-
+            StartAwaiting, OtherPlayerWaitForStart
         }
 
         private readonly NetworkController NetworkController;
@@ -87,7 +86,7 @@ namespace Stratego.Utils
 
         private void StartBattle()
         {
-            if(_statusMode == Mode.Editor)
+            if (_statusMode == Mode.Editor)
             {
                 SetEditorMode(false);
             }
@@ -98,7 +97,7 @@ namespace Stratego.Utils
 
         private void AddPlayerPieces(Player player)
         {
-            Map.Invoke((MethodInvoker)delegate 
+            Map.Invoke((MethodInvoker)delegate
             {
                 Map.DekPanel.AddPlayer(player);
             });
@@ -130,6 +129,9 @@ namespace Stratego.Utils
                 case Mode.StartAwaiting:
                     MessageBox.Show("Wait for the start of the game.", "Advice", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     break;
+                case Mode.WaitTurn:
+                    MessageBox.Show("Wait the other player has to play.", "Advice", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    break;
                 default:
                     break;
             }
@@ -145,8 +147,14 @@ namespace Stratego.Utils
                         && actionEvent.Action.From.Piece.Player == GetPlayer())
                     {
                         validAction = MovePiece(actionEvent.Action);
-                        if (validAction && Grid.Get(actionEvent.Action.To.Coordinate).Piece.Player.Equals(GetPlayer())) //unhide if the tile was hiden
-                            Map.Grid.GetViewTile(actionEvent.Action.To.Coordinate).HideContent(false);
+                        if (validAction)
+                        {
+                            Map.Grid.BackColor = System.Drawing.Color.Red;
+                            _statusMode = Mode.WaitTurn;
+
+                            if (validAction && Grid.Get(actionEvent.Action.To.Coordinate).Piece.Player.Equals(GetPlayer())) //unhide if the tile was hiden
+                                Map.Grid.GetViewTile(actionEvent.Action.To.Coordinate).HideContent(false);
+                        }
                     }
                     break;
                 case Mode.Editor:
@@ -191,7 +199,7 @@ namespace Stratego.Utils
         private bool SetOnGrid(Move move)
         {
             if (move.To.Piece != null) move.To.Piece.ToFactory();
-            if(move.To.Owner.Equals(move.From.Piece.Player))
+            if (move.To.Owner.Equals(move.From.Piece.Player))
                 move.To.Piece = move.From.Piece.Player.PieceFactory.CountedInstanceOf(move.From.Piece.Type);
             return move.To.Piece != null;
         }
@@ -200,7 +208,8 @@ namespace Stratego.Utils
         {
             foreach (Control c in Map.Grid.Controls)
             {
-                if (c is ViewWalkableTile tile && tile.Tile.Owner == GetEnemy()) {
+                if (c is ViewWalkableTile tile && tile.Tile.Owner == GetEnemy())
+                {
                     if (activate) tile.HideContent(true);
                     else if (tile.Tile.Piece == null || tile.Tile.Piece.Player != GetEnemy()) tile.HideContent(false);//unhide all except enemy pieces
                 }
@@ -330,7 +339,7 @@ namespace Stratego.Utils
                     SetEditorMode(true);
                     break;
                 case ActionType.StartRequired:
-                    if(_statusMode != Mode.StartAwaiting)
+                    if (_statusMode != Mode.StartAwaiting)
                     {
                         _multiMode = Mode.OtherPlayerWaitForStart;
                         Map.OnMessageReceived(sender, new StringEventArgs("Want to start..."));
@@ -356,9 +365,11 @@ namespace Stratego.Utils
                         To = GetGridTile(action.Player, action.Move.To.Coordinate)
                     };
                     Map.Grid.GetViewTile(move.From.Coordinate).HideContent(false);
-                    MovePiece(move); 
-                    if(Grid.Get(move.To.Coordinate).Piece.Player != GetPlayer())
+                    MovePiece(move);
+                    if (Grid.Get(move.To.Coordinate).Piece.Player != GetPlayer())
                         Map.Grid.GetViewTile(move.To.Coordinate).HideContent(true);
+                    _statusMode = Mode.Run;
+                    Map.Grid.BackColor = System.Drawing.Color.LightSeaGreen;
                     break;
                 default:
                     break;
@@ -369,8 +380,8 @@ namespace Stratego.Utils
         {
             if (partner.Equals(GetEnemy())) // adapt for all enemies
             {
-                int X = Grid.XSize -1 - coord.X;
-                int Y = Grid.YSize -1 - coord.Y;
+                int X = Grid.XSize - 1 - coord.X;
+                int Y = Grid.YSize - 1 - coord.Y;
                 return Grid.Get(new Point(X, Y));
             }
             return null;
