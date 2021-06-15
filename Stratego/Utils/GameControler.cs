@@ -1,4 +1,5 @@
 ﻿using Stratego.Model;
+using Stratego.Model.Pieces;
 using Stratego.Model.Tiles;
 using Stratego.Network;
 using Stratego.Sockets.Network;
@@ -21,7 +22,7 @@ namespace Stratego.Utils
     {
         private enum Mode
         {
-            Normal, Editor, Run, WaitTurn,
+            Normal, Editor, Run, WaitTurn, Finished,
             StartAwaiting, OtherPlayerWaitForStart
         }
 
@@ -54,11 +55,38 @@ namespace Stratego.Utils
             Map.MovedPiece += OnMove;
             Map.MessageSent += OnMessageSent;
             Map.StartButton += TryStart;
-            Map.Grid.Selectable = false;
 
+            Map.Grid.Selectable = false;
             Map.DekPanel.AddPlayer(GetPlayer());
 
+            GetPlayer().PieceFactory.AmountChanged += CheckFlagTaken;
+
             NetworkController = new NetworkController(Players);
+        }
+
+        private void CheckFlagTaken(object sender, Piece piece)
+        {
+            if(piece.Type == Type.drapeau &&
+                (_statusMode == Mode.Run ||
+                _statusMode == Mode.WaitTurn))
+            {
+                if (piece.Player.Equals(GetPlayer())) EndGame(false);
+                else EndGame(true);
+            }
+        }
+
+        private void EndGame(bool Victory)
+        {
+            if(Victory)
+            {
+                MessageBox.Show("You've defeated him !", "Win", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                _statusMode = _statusMode = Mode.Finished;
+            }
+            else
+            {
+                MessageBox.Show("Your flag is taken", "Defeat", MessageBoxButtons.OK, MessageBoxIcon.Stop);
+                _statusMode = _statusMode = Mode.Finished;
+            }
         }
 
         private void TryStart(object sender, EventArgs e)
@@ -69,9 +97,17 @@ namespace Stratego.Utils
             };
             NetworkController.Send(action);
             if (_multiMode != Mode.OtherPlayerWaitForStart)
+            {
                 _statusMode = Mode.StartAwaiting;
+                _multiMode = Mode.WaitTurn;
+                Map.Grid.BackColor = System.Drawing.Color.Red;
+            }
             else
+            {
                 StartBattle();
+                _multiMode = Mode.WaitTurn;
+                Map.Grid.BackColor = System.Drawing.Color.Red;
+            }
         }
 
         private void OnMessageSent(object sender, StringEventArgs e)
@@ -86,10 +122,7 @@ namespace Stratego.Utils
 
         private void StartBattle()
         {
-            if (_statusMode == Mode.Editor)
-            {
-                SetEditorMode(false);
-            }
+            SetEditorMode(false);
 
             Map.OnMessageReceived(GetEnemy(), new StringEventArgs("Open the fire !"));
             _statusMode = Mode.Run;
@@ -101,6 +134,7 @@ namespace Stratego.Utils
             {
                 Map.DekPanel.AddPlayer(player);
             });
+            GetEnemy().PieceFactory.AmountChanged += CheckFlagTaken;
         }
 
         // Important events for other players
@@ -124,13 +158,22 @@ namespace Stratego.Utils
                     break;
                 case Mode.Editor:
                     break;
-                case Mode.Run:
+                case Mode.Finished:
+                    MessageBox.Show("Restart the game.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     break;
                 case Mode.StartAwaiting:
                     MessageBox.Show("Wait for the start of the game.", "Advice", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     break;
+                default:
+                    break;
+            }
+            switch (_multiMode)
+            {
                 case Mode.WaitTurn:
-                    MessageBox.Show("Wait the other player has to play.", "Advice", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Wait, the other player has to play.", "Advice", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    break;
+                case Mode.OtherPlayerWaitForStart:
+                    MessageBox.Show("Hurry up, the other player wants to play.", "Advice", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     break;
                 default:
                     break;
@@ -314,6 +357,7 @@ namespace Stratego.Utils
         private void OnPlayerLeave(object sender, PlayerEventArgs e)
         {
             MessageBox.Show("Player disconnected... You win !", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            _statusMode = Mode.Finished;
         }
         private void OnPlayerConnection(object sender, PlayerEventArgs e)
         {
@@ -347,6 +391,8 @@ namespace Stratego.Utils
                     else
                     {
                         StartBattle();
+                        _multiMode = Mode.Run;
+                        Map.Grid.BackColor = System.Drawing.Color.LightSeaGreen;
                     }
                     break;
                 case ActionType.TileClick:
@@ -368,8 +414,11 @@ namespace Stratego.Utils
                     MovePiece(move);
                     if (Grid.Get(move.To.Coordinate).Piece.Player != GetPlayer())
                         Map.Grid.GetViewTile(move.To.Coordinate).HideContent(true);
-                    _statusMode = Mode.Run;
-                    Map.Grid.BackColor = System.Drawing.Color.LightSeaGreen;
+                    if (_statusMode != Mode.Finished)
+                    {
+                        _statusMode = _multiMode = Mode.Run;
+                        Map.Grid.BackColor = System.Drawing.Color.LightSeaGreen;
+                    }
                     break;
                 default:
                     break;

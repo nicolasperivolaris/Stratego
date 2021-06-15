@@ -31,7 +31,6 @@ namespace Stratego.Model.Pieces
                 case Type.drapeau:
                     result = new Piece(type, Player);
                     break;
-
                 default:
                     result = new Movable(type, Player);
                     break;

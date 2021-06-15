@@ -15,7 +15,6 @@ namespace Stratego.View
         public GridPanel Grid { get; }
         public DekPanel DekPanel { get; }
 
-
         public event EventHandler EditorModeChange;
         public event EventHandler<StringEventArgs> JointDialogSucceed;
         public event EventHandler<MoveEventArgs> MovedPiece;
