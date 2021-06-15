@@ -38,11 +38,16 @@ namespace StrategoServer.Server
             TransmitToOtherPlayers((Player)sender, e.Data);
         }
 
-        private void TransmitToOtherPlayers(Player exception, object o)
+        private void TransmitToOtherPlayers(Player exception, Game game, object o)
         {
-            Game game = Games.Where(g => g.Players.Contains(exception)).Single();
             List<Player> otherPlayers = game.Players.Where(p => !p.Equals(exception)).ToList();
             NetworkController.SendTo(otherPlayers, o);
+        }
+
+        private void TransmitToOtherPlayers(Player exception, object o)
+        {
+            Game game = Games.Single(g => g.Players.Contains(exception));
+            TransmitToOtherPlayers(exception, game, o);
         }
 
         private void OnAction(object sender, ActionSerializer e)
@@ -72,7 +77,7 @@ namespace StrategoServer.Server
             View.Dispatcher.Invoke(delegate { game.Add(e.Player); });
 
 
-            TransmitToOtherPlayers(e.Player, e.Player); //introduce the new player to the other
+            TransmitToOtherPlayers(e.Player, game, e.Player); //introduce the new player to the other
             foreach (Player player in game.Players)
             {
                 if(player != e.Player)
