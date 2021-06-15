@@ -64,17 +64,6 @@ namespace Stratego.Utils
             NetworkController = new NetworkController(Players);
         }
 
-        private void CheckFlagTaken(object sender, Piece piece)
-        {
-            if(piece.Type == Type.drapeau &&
-                (_statusMode == Mode.Run ||
-                _statusMode == Mode.WaitTurn))
-            {
-                if (piece.Player.Equals(GetPlayer())) EndGame(false);
-                else EndGame(true);
-            }
-        }
-
         private void EndGame(bool Victory)
         {
             if(Victory)
@@ -89,6 +78,119 @@ namespace Stratego.Utils
             }
         }
 
+        
+
+        public void Start()
+        {
+            Application.Run(Map);
+        }
+
+        private void StartBattle()
+        {
+            SetEditorMode(false);
+
+            Map.OnMessageReceived(GetEnemy(), new StringEventArgs("Open the fire !"));
+            _statusMode = Mode.Run;
+        }
+
+        private void AddPlayerPieces(Player player)
+        {
+            Map.Invoke((MethodInvoker)delegate
+            {
+                Map.DekPanel.AddPlayer(player);
+            });
+            GetEnemy().PieceFactory.AmountChanged += CheckFlagTaken;
+        }
+
+
+
+        private Player GetEnemy()
+        {
+            return Players[Program.ENEMY];
+        }
+
+
+
+        private Tile GetGridTile(Player partner, Point coord)
+        {
+            if (partner.Equals(GetEnemy())) // adapt for all enemies
+            {
+                int X = Grid.XSize - 1 - coord.X;
+                int Y = Grid.YSize - 1 - coord.Y;
+                return Grid.Get(new Point(X, Y));
+            }
+            return null;
+        }
+
+        private Player GetPlayer()
+        {
+            return Players[Program.PLAYER];
+        }
+
+        private void SendToPartner(MoveEventArgs move)
+        {
+            ActionSerializer actionSerializer = new ActionSerializer()
+            {
+                ActionType = move.ActionType,
+                Move = move.Action,
+                Player = GetPlayer()
+            };
+            SendToPartner(actionSerializer);
+        }
+
+        private void SendToPartner(ActionSerializer action)
+        {
+            NetworkController.Send(action);
+        }
+
+        private bool SetOnGrid(Move move)
+        {
+            if (move.To.Piece != null) move.To.Piece.ToFactory();
+            if (move.To.Owner.Equals(move.From.Piece.Player))
+                move.To.Piece = move.From.Piece.Player.PieceFactory.CountedInstanceOf(move.From.Piece.Type);
+            return move.To.Piece != null;
+        }
+
+        private void HideEnemyZone(bool activate)
+        {
+            foreach (Control c in Map.Grid.Controls)
+            {
+                if (c is ViewWalkableTile tile && tile.Tile.Owner == GetEnemy())
+                {
+                    if (activate) tile.HideContent(true);
+                    else if (tile.Tile.Piece == null || tile.Tile.Piece.Player != GetEnemy()) tile.HideContent(false);//unhide all except enemy pieces
+                }
+            }
+        }
+
+        private bool MovePiece(Move move)
+        {
+            Piece toMove = move.From.Piece;
+            if (toMove.IsPossible(move))
+            {
+                toMove.Move(move.From, move.To);
+                return true;
+            }
+            else
+                return false;
+        }
+        private void SetEditorMode(bool activate)
+        {
+            if (activate)
+            {
+                _statusMode = Mode.Editor;
+                Map.SetModeEditor(true);
+                HideEnemyZone(true);
+            }
+            else
+            {
+                _statusMode = Mode.Normal;
+                Map.SetModeEditor(false);
+                HideEnemyZone(false);
+            }
+        }
+
+        #region buttons
         private void TryStart(object sender, EventArgs e)
         {
             ActionSerializer action = new ActionSerializer
@@ -115,30 +217,151 @@ namespace Stratego.Utils
             NetworkController.Send(e.Data);
         }
 
-        public void Start()
+        private void EditorMode(object sender, EventArgs e)
         {
-            Application.Run(Map);
-        }
-
-        private void StartBattle()
-        {
-            SetEditorMode(false);
-
-            Map.OnMessageReceived(GetEnemy(), new StringEventArgs("Open the fire !"));
-            _statusMode = Mode.Run;
-        }
-
-        private void AddPlayerPieces(Player player)
-        {
-            Map.Invoke((MethodInvoker)delegate
+            if (NetworkController.IsDisconnected())
             {
-                Map.DekPanel.AddPlayer(player);
-            });
-            GetEnemy().PieceFactory.AmountChanged += CheckFlagTaken;
+                Map.ShowConnectionError();
+                return;
+            }
+
+            if (_statusMode == Mode.Editor || _statusMode == Mode.Normal)
+            {
+                SetEditorMode(_statusMode == Mode.Normal);//If normal => editor
+                SendToPartner(new ActionSerializer()
+                {
+                    ActionType = _statusMode == Mode.Editor ? ActionType.EditorMode : ActionType.NormalMode,
+                    Player = GetPlayer()
+                });
+            }
         }
 
-        // Important events for other players
-        #region actions
+
+        private void JointPartner(object sender, StringEventArgs e)
+        {
+            if (NetworkController.IsConnected())
+            {
+                MessageBox.Show("Already connected", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            IPAddress address;
+            try
+            {
+                address = IPAddress.Parse(e.Data);
+            }
+            catch
+            {
+                address = IPAddress.Loopback; //default : (debug only)
+            }
+            try
+            {
+                NetworkController.StartAsClient(address, GetPlayer());
+                Map.Grid.Selectable = true;
+            }
+            catch (SocketException)
+            {
+                ErrorDialog dialog = new ErrorDialog();
+                dialog.ShowDialog();
+                Map.ShowConnectionDialog(this, EventArgs.Empty);
+            }
+            NetworkController.PlayerConnection += OnPlayerConnection;
+            NetworkController.Message += Map.OnMessageReceived;
+            NetworkController.Action += OnPartnerAction;
+            NetworkController.PlayerLeave += OnPlayerLeave;
+            NetworkController.PlayerNumberReceived += OnPlayerNumberReceived;
+            NetworkController.ConnectionError += OnConnectionError;
+        }
+
+
+        #endregion
+
+        #region events
+
+        private void CheckFlagTaken(object sender, Piece piece)
+        {
+            if (piece.Type == Type.drapeau &&
+                (_statusMode == Mode.Run ||
+                _statusMode == Mode.WaitTurn))
+            {
+                if (piece.Player.Equals(GetPlayer())) EndGame(false);
+                else EndGame(true);
+            }
+        }
+
+        private void OnConnectionError(object sender, EventArgs e)
+        {
+            MessageBox.Show("Connection error", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+
+        private void OnPlayerNumberReceived(object sender, StringEventArgs e)
+        {
+            GetPlayer().Number = Int32.Parse(e.Data);
+        }
+        private void OnPlayerLeave(object sender, PlayerEventArgs e)
+        {
+            MessageBox.Show("Player disconnected... You win !", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            _statusMode = Mode.Finished;
+        }
+        private void OnPlayerConnection(object sender, PlayerEventArgs e)
+        {
+            GetEnemy().Number = e.Player.Number;
+            GetEnemy().Name = e.Player.Name;
+            AddPlayerPieces(GetEnemy());
+        } 
+        
+        private void OnPartnerAction(object sender, ActionSerializer action)
+        {
+            Player partner = (Player)sender;
+            switch (action.ActionType)
+            {
+                case ActionType.NormalMode:
+                    SetEditorMode(false);
+                    break;
+                case ActionType.EditorMode:
+                    SetEditorMode(true);
+                    break;
+                case ActionType.StartRequired:
+                    if (_statusMode != Mode.StartAwaiting)
+                    {
+                        _multiMode = Mode.OtherPlayerWaitForStart;
+                        Map.OnMessageReceived(sender, new StringEventArgs("Want to start..."));
+                    }
+                    else
+                    {
+                        StartBattle();
+                        _multiMode = Mode.Run;
+                        Map.Grid.BackColor = System.Drawing.Color.LightSeaGreen;
+                    }
+                    break;
+                case ActionType.TileClick:
+                    break;
+                case ActionType.FromDekToGrid:
+                    action.Move.From = action.Player.Dek[(Type)action.Move.From.Coordinate.Y];
+                    action.Move.To = GetGridTile(action.Player, action.Move.To.Coordinate);
+                    SetOnGrid(action.Move);
+                    break;
+                case ActionType.FromGridToDek:
+                    break;
+                case ActionType.Move:
+                    Move move = new Move
+                    {
+                        From = GetGridTile(action.Player, action.Move.From.Coordinate),
+                        To = GetGridTile(action.Player, action.Move.To.Coordinate)
+                    };
+                    Map.Grid.GetViewTile(move.From.Coordinate).HideContent(false);
+                    MovePiece(move);
+                    if (Grid.Get(move.To.Coordinate).Piece.Player != GetPlayer())
+                        Map.Grid.GetViewTile(move.To.Coordinate).HideContent(true);
+                    if (_statusMode != Mode.Finished)
+                    {
+                        _statusMode = _multiMode = Mode.Run;
+                        Map.Grid.BackColor = System.Drawing.Color.LightSeaGreen;
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
 
         private void OnTileClick(object sender, TileEventArgs actionEvent)
         {
@@ -218,223 +441,7 @@ namespace Stratego.Utils
             }
         }
 
-        private Player GetPlayer()
-        {
-            return Players[Program.PLAYER];
-        }
-
-        private void SendToPartner(MoveEventArgs move)
-        {
-            ActionSerializer actionSerializer = new ActionSerializer()
-            {
-                ActionType = move.ActionType,
-                Move = move.Action,
-                Player = GetPlayer()
-            };
-            SendToPartner(actionSerializer);
-        }
-
-        private void SendToPartner(ActionSerializer action)
-        {
-            NetworkController.Send(action);
-        }
-
-        private bool SetOnGrid(Move move)
-        {
-            if (move.To.Piece != null) move.To.Piece.ToFactory();
-            if (move.To.Owner.Equals(move.From.Piece.Player))
-                move.To.Piece = move.From.Piece.Player.PieceFactory.CountedInstanceOf(move.From.Piece.Type);
-            return move.To.Piece != null;
-        }
-
-        private void HideEnemyZone(bool activate)
-        {
-            foreach (Control c in Map.Grid.Controls)
-            {
-                if (c is ViewWalkableTile tile && tile.Tile.Owner == GetEnemy())
-                {
-                    if (activate) tile.HideContent(true);
-                    else if (tile.Tile.Piece == null || tile.Tile.Piece.Player != GetEnemy()) tile.HideContent(false);//unhide all except enemy pieces
-                }
-            }
-        }
-
-        private bool MovePiece(Move move)
-        {
-            Piece toMove = move.From.Piece;
-            if (toMove.IsPossible(move))
-            {
-                toMove.Move(move.From, move.To);
-                return true;
-            }
-            else
-                return false;
-        }
-        private void SetEditorMode(bool activate)
-        {
-            if (activate)
-            {
-                _statusMode = Mode.Editor;
-                Map.SetModeEditor(true);
-                HideEnemyZone(true);
-            }
-            else
-            {
-                _statusMode = Mode.Normal;
-                Map.SetModeEditor(false);
-                HideEnemyZone(false);
-            }
-        }
-
         #endregion
-
-        #region buttons
-        private void EditorMode(object sender, EventArgs e)
-        {
-            if (NetworkController.IsDisconnected())
-            {
-                Map.ShowConnectionError();
-            }
-
-            if (_statusMode == Mode.Editor || _statusMode == Mode.Normal)
-            {
-                SetEditorMode(_statusMode == Mode.Normal);//If normal => editor
-                SendToPartner(new ActionSerializer()
-                {
-                    ActionType = _statusMode == Mode.Editor ? ActionType.EditorMode : ActionType.NormalMode,
-                    Player = GetPlayer()
-                });
-            }
-        }
-
-
-        private void JointPartner(object sender, StringEventArgs e)
-        {
-            if (NetworkController.IsConnected())
-            {
-                MessageBox.Show("Already connected", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-            IPAddress address;
-            try
-            {
-                address = IPAddress.Parse(e.Data);
-            }
-            catch
-            {
-                address = IPAddress.Loopback; //default : (debug only)
-            }
-            try
-            {
-                NetworkController.StartAsClient(address, GetPlayer());
-                Map.Grid.Selectable = true;
-            }
-            catch (SocketException)
-            {
-                ErrorDialog dialog = new ErrorDialog();
-                dialog.ShowDialog();
-                Map.ShowConnectionDialog(this, EventArgs.Empty);
-            }
-            NetworkController.PlayerConnection += OnPlayerConnection;
-            NetworkController.Message += Map.OnMessageReceived;
-            NetworkController.Action += OnPartnerAction;
-            NetworkController.PlayerLeave += OnPlayerLeave;
-            NetworkController.PlayerNumberReceived += OnPlayerNumberReceived;
-            NetworkController.ConnectionError += OnConnectionError;
-        }
-
-        private void OnConnectionError(object sender, EventArgs e)
-        {
-            MessageBox.Show("Connection error", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
-
-        private void OnPlayerNumberReceived(object sender, StringEventArgs e)
-        {
-            GetPlayer().Number = Int32.Parse(e.Data);
-        }
-
-        #endregion
-        private void OnPlayerLeave(object sender, PlayerEventArgs e)
-        {
-            MessageBox.Show("Player disconnected... You win !", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-            _statusMode = Mode.Finished;
-        }
-        private void OnPlayerConnection(object sender, PlayerEventArgs e)
-        {
-            GetEnemy().Number = e.Player.Number;
-            GetEnemy().Name = e.Player.Name;
-            AddPlayerPieces(GetEnemy());
-        }
-
-        private Player GetEnemy()
-        {
-            return Players[Program.ENEMY];
-        }
-
-        private void OnPartnerAction(object sender, ActionSerializer action)
-        {
-            Player partner = (Player)sender;
-            switch (action.ActionType)
-            {
-                case ActionType.NormalMode:
-                    SetEditorMode(false);
-                    break;
-                case ActionType.EditorMode:
-                    SetEditorMode(true);
-                    break;
-                case ActionType.StartRequired:
-                    if (_statusMode != Mode.StartAwaiting)
-                    {
-                        _multiMode = Mode.OtherPlayerWaitForStart;
-                        Map.OnMessageReceived(sender, new StringEventArgs("Want to start..."));
-                    }
-                    else
-                    {
-                        StartBattle();
-                        _multiMode = Mode.Run;
-                        Map.Grid.BackColor = System.Drawing.Color.LightSeaGreen;
-                    }
-                    break;
-                case ActionType.TileClick:
-                    break;
-                case ActionType.FromDekToGrid:
-                    action.Move.From = action.Player.Dek[(Type)action.Move.From.Coordinate.Y];
-                    action.Move.To = GetGridTile(action.Player, action.Move.To.Coordinate);
-                    SetOnGrid(action.Move);
-                    break;
-                case ActionType.FromGridToDek:
-                    break;
-                case ActionType.Move:
-                    Move move = new Move
-                    {
-                        From = GetGridTile(action.Player, action.Move.From.Coordinate),
-                        To = GetGridTile(action.Player, action.Move.To.Coordinate)
-                    };
-                    Map.Grid.GetViewTile(move.From.Coordinate).HideContent(false);
-                    MovePiece(move);
-                    if (Grid.Get(move.To.Coordinate).Piece.Player != GetPlayer())
-                        Map.Grid.GetViewTile(move.To.Coordinate).HideContent(true);
-                    if (_statusMode != Mode.Finished)
-                    {
-                        _statusMode = _multiMode = Mode.Run;
-                        Map.Grid.BackColor = System.Drawing.Color.LightSeaGreen;
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        private Tile GetGridTile(Player partner, Point coord)
-        {
-            if (partner.Equals(GetEnemy())) // adapt for all enemies
-            {
-                int X = Grid.XSize - 1 - coord.X;
-                int Y = Grid.YSize - 1 - coord.Y;
-                return Grid.Get(new Point(X, Y));
-            }
-            return null;
-        }
 
         #region Creation
 

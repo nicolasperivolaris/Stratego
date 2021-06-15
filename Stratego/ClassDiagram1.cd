@@ -1,91 +1,297 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
-  <Class Name="Stratego.Model.Piece">
-    <Position X="9.75" Y="7" Width="1.5" />
+  <Class Name="Stratego.Model.Dek" Collapsed="true">
+    <Position X="8.25" Y="7.75" Width="1.5" />
     <Compartments>
-      <Compartment Name="Properties" Collapsed="true" />
+      <Compartment Name="Methods" Collapsed="true" />
     </Compartments>
     <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAAAAAAACAQQAAAAAAAAAQAAAQIAAAA=</HashCode>
-      <FileName>Model\Pieces\Piece.cs</FileName>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="Stratego.Model.HoleTile">
-    <Position X="13.5" Y="11.25" Width="1.5" />
-    <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>Model\Tiles\HoleTile.cs</FileName>
+      <FileName>Model\Dek.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="Stratego.Model.Demineur">
-    <Position X="8.5" Y="11.75" Width="1.5" />
+  <Class Name="Stratego.Model.Grid" Collapsed="true">
+    <Position X="5.5" Y="6.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAABABAAAAAAAABAAAgAAAIAAAABAAAAAA=</HashCode>
+      <FileName>Model\Grid.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="TileGrid" />
+      <Property Name="Players" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="Stratego.Model.Demineur" Collapsed="true">
+    <Position X="0.75" Y="11.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Model\Pieces\Demineur.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="Stratego.Model.Tile">
-    <Position X="14.75" Y="7" Width="1.5" />
+  <Class Name="Stratego.Model.Move" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="7" Y="4.75" Width="1.5" />
+    <AssociationLine Name="From" Type="Stratego.Model.Tiles.Tile" ManuallyRouted="true" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="7.75" Y="5.312" />
+        <Point X="7.75" Y="8.375" />
+        <Point X="6.656" Y="8.375" />
+        <Point X="6.656" Y="8.75" />
+      </Path>
+    </AssociationLine>
     <TypeIdentifier>
-      <HashCode>ACBAAAAQAAAABAAAAAAABAACAAAAIAAAAAAAIgAAAAA=</HashCode>
-      <FileName>Model\Tiles\Tile.cs</FileName>
+      <HashCode>AgAAAAAAAAAAAAAAAAAAAAAAAAAIAEAAAAAAAAAAABA=</HashCode>
+      <FileName>Model\Pieces\Move.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="From" />
+    </ShowAsAssociation>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Stratego.Model.Piece" Collapsed="true">
+    <Position X="2" Y="8.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CAAAAEAAAIAAAAQAgAAACAQQAAAAAIAAAQAAAQIAAAA=</HashCode>
+      <FileName>Model\Pieces\Piece.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Type" />
+      <Property Name="Player" />
+    </ShowAsAssociation>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Stratego.Model.Player" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="3" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAACEgEAAEAQAAAAAAYECAAAAgAAAAAA=</HashCode>
+      <FileName>Model\Player.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Stratego.Model.ViewHoleTile" Collapsed="true">
+    <Position X="8.25" Y="11" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAA=</HashCode>
+      <FileName>View\Tiles\ViewHoleTile.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="Stratego.Model.WalkableTile">
-    <Position X="15.75" Y="11.25" Width="1.5" />
+  <Class Name="Stratego.Model.ViewTile" Collapsed="true">
+    <Position X="9.5" Y="9.5" Width="1.5" />
+    <AssociationLine Name="_tile" Type="Stratego.Model.Tiles.Tile" ManuallyRouted="true" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="9.5" Y="9.812" />
+        <Point X="8.089" Y="9.812" />
+        <Point X="8.089" Y="9.031" />
+        <Point X="7" Y="9.031" />
+      </Path>
+    </AssociationLine>
     <TypeIdentifier>
-      <HashCode>AAQAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAQAAAAA=</HashCode>
-      <FileName>Model\Tiles\WalkableTile.cs</FileName>
+      <HashCode>AAAAAQAQAABAAAAAAAAEAAACDAAAIAAAAAAAAiAAIQA=</HashCode>
+      <FileName>View\Tiles\ViewTile.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="_tile" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="Stratego.Model.ViewWalkableTile" Collapsed="true">
+    <Position X="10.5" Y="11" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAA=</HashCode>
+      <FileName>View\Tiles\ViewWalkableTile.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="Stratego.Model.Pieces.Spy">
-    <Position X="10.75" Y="11.75" Width="1.5" />
-    <TypeIdentifier>
-      <HashCode>AAAAAAAAAAAAAAQAAAAAAAAQAAAAAAAAAAAAAAAAAAA=</HashCode>
-      <FileName>Model\Pieces\Spy.cs</FileName>
-    </TypeIdentifier>
-  </Class>
-  <Class Name="Stratego.Movable">
-    <Position X="9.75" Y="9.5" Width="1.5" />
+  <Class Name="Stratego.Movable" Collapsed="true">
+    <Position X="2" Y="10.25" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Model\Pieces\Movable.cs</FileName>
     </TypeIdentifier>
   </Class>
-  <Class Name="Stratego.Model.Pieces.PieceFactory">
-    <Position X="7.75" Y="7" Width="1.5" />
+  <Class Name="Stratego.Model.Pieces.PieceFactory" Collapsed="true">
+    <Position X="2" Y="6.5" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAQAAAAAAAAAIAABAAAAAAAAAAAAAQAAAAAAARAAAAE=</HashCode>
+      <HashCode>AAQACAAAAAAAIAABAAAAAAAAAAAAAQAAAAAAQRAAAAE=</HashCode>
       <FileName>Model\Pieces\PieceFactory.cs</FileName>
     </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Player" />
+    </ShowAsAssociation>
   </Class>
-  <Class Name="Stratego.Model.GridPanel">
-    <Position X="13" Y="4" Width="1.5" />
+  <Class Name="Stratego.Model.Pieces.Spy" Collapsed="true">
+    <Position X="3" Y="11.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>CAQAAIAAQAIIAAAAAAAACAAAAAAKAAIAAAAAAAQAEAA=</HashCode>
-      <FileName>View\Panels\GridPanel.cs</FileName>
+      <HashCode>AAAAAAAAAAAAAAQAAAAAAAAQAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Model\Pieces\Spy.cs</FileName>
     </TypeIdentifier>
-    <Lollipop Position="0.2" />
   </Class>
-  <Class Name="Stratego.Model.DekPanel">
-    <Position X="16.75" Y="4" Width="1.5" />
-    <NestedTypes>
-      <Class Name="Stratego.Model.DekPanel.Dek" Collapsed="true">
-        <TypeIdentifier>
-          <NewMemberFileName>View\Panels\DekPanel.cs</NewMemberFileName>
-        </TypeIdentifier>
-      </Class>
-    </NestedTypes>
+  <Class Name="Stratego.Model.Tiles.Tile" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="5.5" Y="8.75" Width="1.5" />
     <TypeIdentifier>
-      <HashCode>AAAAAAAAQAAAAAAAAAAAAAAAAAAACAACAAgAAAAIAAA=</HashCode>
+      <HashCode>AABAAACAAAAABAAEACAABAAAAAABAAAAAAAAIAAAABA=</HashCode>
+      <FileName>Model\Tiles\Tile.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="_Piece" />
+    </ShowAsAssociation>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Stratego.Network.NetworkController" Collapsed="true">
+    <Position X="21" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAABEAAQCCAAABBAFBCABBAACAiIJAIgAQAIAAQAAQ=</HashCode>
+      <FileName>Network\NetworkController.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Field Name="NetworkManager" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="Stratego.Sockets.Network.Client" Collapsed="true">
+    <Position X="23.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAEAQAAAAAAAAEAAAIAAAAAAAAAAAAAEAAAAAAA=</HashCode>
+      <FileName>Network\Socket\Client.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Stratego.Sockets.Network.NetworkManager" Collapsed="true">
+    <Position X="24.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ICAACBAARAAAQAAAQEAAAJAACAAIAAAAgAAAAAAAAAA=</HashCode>
+      <FileName>Network\Socket\NetworkManager.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Stratego.Sockets.Network.Server" Collapsed="true">
+    <Position X="25.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAQCAAAAAAAGAAAJAAAAAAIAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Network\Socket\Server.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Stratego.Sockets.Network.StringEventArgs" Collapsed="true">
+    <Position X="24.25" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAEAAAAAAAAAAAAABAAAAAAAAAAAAA=</HashCode>
+      <FileName>Network\Socket\StringEventArgs.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Stratego.Sockets.Network.PlayerEventArgs" Collapsed="true">
+    <Position X="26" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAA=</HashCode>
+      <FileName>Network\Socket\StringEventArgs.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Stratego.Network.Socket.IPAddressEventArgs" Collapsed="true">
+    <Position X="22.5" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAA=</HashCode>
+      <FileName>Network\Socket\IPAddressEventArgs.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Stratego.Utils.ActionEventArgs&lt;TAction, TSender&gt;" Collapsed="true">
+    <Position X="19" Y="3" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAIAAQ=</HashCode>
+      <FileName>Utils\ActionEventArgs.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Stratego.Utils.ActionSerializer" Collapsed="true">
+    <Position X="7" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAIAAAACBAAAAAAAAACAAEAAAAAAAAQAAAAA=</HashCode>
+      <FileName>Utils\ActionSerializer.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Move" />
+      <Property Name="Player" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="Stratego.Utils.GameControler" Collapsed="true">
+    <Position X="13.5" Y="0.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CEQAEgIAAHIICCAACQEICCAAAUAhCgIgAAgEAAAQEAA=</HashCode>
+      <FileName>Utils\GameControler.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Stratego.Utils.MoveEventArgs" Collapsed="true">
+    <Position X="17.75" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Utils\MoveEventArgs.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Stratego.View.Map" Collapsed="true">
+    <Position X="9.5" Y="2.5" Width="1.5" />
+    <AssociationLine Name="DekPanel" Type="Stratego.View.DekPanel" ManuallyRouted="true" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="9.5" Y="2.846" />
+        <Point X="8.746" Y="2.846" />
+        <Point X="8.746" Y="5.879" />
+        <Point X="8.75" Y="5.879" />
+        <Point X="8.75" Y="6.25" />
+      </Path>
+    </AssociationLine>
+    <AssociationLine Name="Grid" Type="Stratego.View.GridPanel" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="11" Y="2.812" />
+        <Point X="11.562" Y="2.812" />
+        <Point X="11.562" Y="6.25" />
+      </Path>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>BQACAgAgICAAACQkAAiQgIGCQAAyMAAKAgEggCAMIgQ=</HashCode>
+      <FileName>View\Map.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="DekPanel" />
+      <Property Name="Grid" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="Stratego.View.DekPanel" Collapsed="true">
+    <Position X="8.25" Y="6.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAEAAAAAAAAAGAAAAAAAAAEgAAABAAAA=</HashCode>
       <FileName>View\Panels\DekPanel.cs</FileName>
     </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Field Name="Deks" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="Stratego.View.GridPanel" Collapsed="true">
+    <Position X="10.5" Y="6.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAgAAAAAAAAAAAAAAAAACAACgAACCAQEAAAAAAAA=</HashCode>
+      <FileName>View\Panels\GridPanel.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Stratego.View.ViewGrid" Collapsed="true">
+    <Position X="9.5" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAJAAAAAABAAAQAAAAAAACAGAAABAAAAAAAAAAIAAAA=</HashCode>
+      <FileName>View\Panels\ViewGrid.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Stratego.View.Tiles.TileEventArgs" Collapsed="true">
+    <Position X="20" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>View\Tiles\TileEventArgs.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="System.EventArgs" Collapsed="true">
+    <Position X="22.75" Y="3.25" Width="1.5" />
+    <TypeIdentifier />
   </Class>
   <Enum Name="Stratego.Model.Type" Collapsed="true">
-    <Position X="7.75" Y="10.5" Width="1.5" />
+    <Position X="0.5" Y="7.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAIAJAAAAAAAAAAAJAGAQAAgACAAAAASAAAAAgAAAAA=</HashCode>
       <FileName>Model\Pieces\Type.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Enum Name="Stratego.Network.Flag" Collapsed="true">
+    <Position X="20" Y="11.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAABAAAAAAABAAAAAAAAAAAkAAAAAAIAAgAQQ=</HashCode>
+      <FileName>Network\Flag.cs</FileName>
     </TypeIdentifier>
   </Enum>
   <Font Name="Segoe UI" Size="9" />
